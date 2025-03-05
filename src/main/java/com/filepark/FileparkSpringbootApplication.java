@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan({ "controller", "service", "config", "dto" })
+@ComponentScan({ "controller", "service", "config", "dto", "kakao" })
 @MapperScan({ "mapper" })
 public class FileparkSpringbootApplication {
 	public static void main(String[] args) {
