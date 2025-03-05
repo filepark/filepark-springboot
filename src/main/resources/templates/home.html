@@ -1,59 +1,67 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>File Park</title>
 </head>
 <style>
-
+    .profile-home {
+        width: 20px;
+        height: 20px;
+        border-radius: 100px;
+    }
 </style>
 
 <body>
-    <header>
-        <div>Logo</div>
-        <div>로그인</div>
-        <div>회원가입</div>
-    </header>
-    <aside>
-        <p>파일 공유 그룹</p>
-        <div class="groups-list"></div>
-        <div class="groups-add">
-            <button class="btn">새로운 그룹 참여</button>
-        </div>
-    </aside>
-    <main>
-        <div class="groups-participants">
-            <div>
-                <p>그룹 참여자</p>
-                <div class="participants-list"></div>
-            </div>
-        </div>
+<div th:if="${session.loginstatus}">
+    <p style="display: flex;">환영합니다, <img class="profile-home" th:src="${session.profileimage}"><span th:text="${session.nickname}"></span>님!
+    </p>
+</div>
+<header>
+    <div>Logo</div>
+    <div>로그인</div>
+    <div>회원가입</div>
+</header>
+<aside>
+    <p>파일 공유 그룹</p>
+    <div class="groups-list"></div>
+    <div class="groups-add">
+        <button class="btn">새로운 그룹 참여</button>
+    </div>
+</aside>
+<main>
+    <div class="groups-participants">
         <div>
-            <div>
-                <p>파일 목록</p>
-                <button>파일 업로드</button>
-            </div>
-            <div class="files-contents">
-                <div class="files-list"></div>
-            </div>
+            <p>그룹 참여자</p>
+            <div class="participants-list"></div>
         </div>
-    </main>
-    <button class="btn" onclick="my_modal_1.showModal()">open modal</button>
-    <dialog id="my_modal_1" class="modal">
-        <div class="modal-box">
-            <h3 class="text-lg font-bold">Hello!</h3>
-            <p class="py-4">Press ESC key or click the button below to close</p>
-            <div class="modal-action">
-                <form method="dialog">
-                    <button class="btn">닫기</button>
-                </form>
-            </div>
+    </div>
+    <div>
+        <div>
+            <p>파일 목록</p>
+            <button>파일 업로드</button>
         </div>
-    </dialog>
+        <div class="files-contents">
+            <div class="files-list"></div>
+        </div>
+    </div>
+</main>
+<button class="btn" onclick="my_modal_1.showModal()">open modal</button>
+<dialog id="my_modal_1" class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Hello!</h3>
+        <p class="py-4">Press ESC key or click the button below to close</p>
+        <div class="modal-action">
+            <form method="dialog">
+                <button class="btn">닫기</button>
+            </form>
+        </div>
+    </div>
+</dialog>
 </body>
 
 </html>
