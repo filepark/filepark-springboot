@@ -12,8 +12,8 @@ import lombok.Data;
 @Data
 public class ChatLogDTO {
 	private int id;
-	private int user_id;
-	private int group_id;
+	private int userId;
+	private int groupId;
 	private String message;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private Timestamp created_at;

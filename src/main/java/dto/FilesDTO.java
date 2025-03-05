@@ -12,12 +12,12 @@ import lombok.Data;
 @Data
 public class FilesDTO {
 	private int id;
-	private int user_id;
-	private int group_id;
-	private String bucket_uri;
-	private String bucket_path;
+	private int userId;
+	private int groupId;
+	private String bucketUri;
+	private String bucketPath;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-	private Timestamp created_at;
+	private Timestamp createdAt;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-	private Timestamp updated_at;
+	private Timestamp updatedAt;
 }

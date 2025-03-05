@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper.JunctionUsersGroupsMapper">
+	<resultMap id="GroupResultMap" type="GroupsDTO">
+         <id property="id" column="id" />
+         <result property="userId" column="user_id" />
+         <result property="name" column="name" />
+         <result property="description" column="description" />
+         <result property="maxUser" column="max_user" />
+         <result property="createdAt" column="created_at" />
+         <result property="updatedAt" column="updated_at" />
+	</resultMap>
+	<select id="readGroupListByUserId" parameterType="int" resultMap="GroupResultMap">
+		SELECT g.id, g.user_id, g.`name`, g.`description`, g.max_user, g.created_at, g.updated_at FROM `groups` AS g
+		LEFT JOIN junction_users_groups AS jug ON g.id = jug.group_id
+        WHERE jug.user_id = #{userId}
+	</select>
+	<select id="readGroupCountByUserId" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM `groups` AS g
+		LEFT JOIN junction_users_groups AS jug ON g.id = jug.group_id
+        WHERE jug.user_id = #{userId}
+	</select>
 </mapper>

@@ -1,12 +1,17 @@
 package controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class PageController {
 	@GetMapping("/home")
-	public String hello() {
+	public String home(HttpServletRequest request, HttpSession session, Model model) {
 		return "home";
 	}
 
@@ -25,8 +30,9 @@ public class PageController {
 		return "profile";
 	}
 
-	@GetMapping("/groups")
-	public String groups() {
+	@GetMapping("/groups/{groupId}")
+	public String groups(@PathVariable int groupId, Model model) {
+		model.addAttribute("groupId", groupId);
 		return "groups";
 	}
 

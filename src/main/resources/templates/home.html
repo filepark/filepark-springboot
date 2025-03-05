@@ -1,49 +1,27 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <title>File Park</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <title>File Park - Home</title>
 </head>
-<style>
 
-</style>
 
 <body>
-    <header>
-        <div>Logo</div>
-        <div>로그인</div>
-        <div>회원가입</div>
-    </header>
-    <aside>
-        <p>파일 공유 그룹</p>
-        <div class="groups-list"></div>
-        <div class="groups-add">
-            <button class="btn">새로운 그룹 참여</button>
-        </div>
-    </aside>
-    <main>
-        <div class="groups-participants">
-            <div>
-                <p>그룹 참여자</p>
-                <div class="participants-list"></div>
-            </div>
-        </div>
-        <div>
-            <div>
-                <p>파일 목록</p>
-                <button>파일 업로드</button>
-            </div>
-            <div class="files-contents">
-                <div class="files-list"></div>
-            </div>
+    <header th:replace="~{/layouts/header :: header}"></header>
+    <aside th:replace="~{/layouts/aside :: aside}"></aside>
+    <main style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 300px); height: calc(100vh - 80px);">
+        <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;">
+            <button>새 그룹 만들기</button>
+            <button>그룹에 참여하기</button>
+
         </div>
     </main>
-    <button class="btn" onclick="my_modal_1.showModal()">open modal</button>
-    <dialog id="my_modal_1" class="modal">
+    <dialog id="itemModal" class="modal">
         <div class="modal-box">
             <h3 class="text-lg font-bold">Hello!</h3>
             <p class="py-4">Press ESC key or click the button below to close</p>

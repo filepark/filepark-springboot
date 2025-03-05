@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class UserLogDTO {
 	private long id;
-	private int user_id;
+	private int userId;
 	private String subject;
 	private String action;
 }

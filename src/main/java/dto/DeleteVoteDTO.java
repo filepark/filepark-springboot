@@ -7,6 +7,6 @@ import lombok.Data;
 @Alias("DeleteVoteDTO")
 @Data
 public class DeleteVoteDTO {
-	private int user_id;
-	private int file_id;
+	private int userId;
+	private int fileId;
 }
