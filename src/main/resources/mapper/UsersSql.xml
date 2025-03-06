@@ -33,4 +33,11 @@
     <select id="getUserById" parameterType="int" resultMap="userResultMap">
         select * from users where id=#{userId}
     </select>
+    <update id="updateUserById" parameterType="map">
+        update users
+        set name=#{name},
+            profile_image=#{profileImage},
+            description=#{description}
+        where id = #{id}
+    </update>
 </mapper>

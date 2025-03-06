@@ -13,4 +13,5 @@ public interface UsersMapper {
     public int chkMember (String email);
     public UsersDTO getUserByEmail (String email);
     public UsersDTO getUserById (int userId);
+    public void updateUserById(UsersDTO dto);
 }

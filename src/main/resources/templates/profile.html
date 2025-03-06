@@ -9,34 +9,71 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <style>
+        #profile-img:hover {
+            cursor: pointer;
+            filter: brightness(80%);
+        }
     </style>
 </head>
 <body>
 <header th:replace="~{/layouts/header :: header}"></header>
 <aside th:replace="~{/layouts/aside :: aside}"></aside>
 <main style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 300px); height: calc(100vh - 80px);overflow: hidden;">
-    <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; flex-direction: column">
+    <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; flex-direction: column; ">
         <div style="display: flex; position:relative; left: -150px;">
             <input type="file" id="update-profile" style="display: none;">
             <img th:src="${session.profileImage}" onerror="this.src='/images/noimage.png'" id="profile-img"
                  style="border-radius: 100px; width: 200px; height: 200px; border: 1px solid lightgrey;">
-            <i class="bi bi-camera" style="font-size: 1.4em; border-radius: 100px; border: 1px solid gray; color: darkgrey;
-height: 30px; width: 30px; position: relative; left: -40px; top:150px;"></i>
             <div style="display: flex; flex-direction: column; justify-content: center; margin-left: 50px;">
-                <input type="text" th:value="${session.name}"
-                       style="border-radius: 5px; padding: 5px; height: 50px; width: 300px; margin-bottom: 10px;">
-                <input type="text" th:value="'가입일 : '+${session.createdAt}" disabled
-                       style="background-color: lightgrey; padding: 5px; border-radius: 5px; height: 50px; width: 300px; font-weight: bold;">
+                <input type="text" th:value="${session.name}" placeholder="이름 입력" , class="input" id="mypage-name"
+                       style="border-radius: 5px; padding: 10px; height: 50px; width: 300px; margin-bottom: 10px;">
+                <input type="text" th:value="'가입일 : '+${session.createdAt}" class="input" readonly id="mypage-createdAt"
+                       style="background-color: lightgrey; padding: 10px; border-radius: 5px; height: 50px; width: 300px; font-weight: bold;">
             </div>
         </div>
-        <textarea th:type="text" class="textarea" th:text="${session.description}"
-                  style="width: 1000px; height: 250px; margin-top: 50px; padding: 10px; font-size: 18px;"></textarea>
+        <textarea th:type="text" class="textarea" th:text="${session.description}" id="mypage-description"
+                  style="width: 900px; height: 250px; margin-top: 50px; padding: 10px; font-size: 15px;"></textarea>
+        <div style="margin-top: 30px; margin-left: auto; margin-right: 20%; white-space: nowrap;">
+            <button class="btn" id="mypage-save">변경사항 저장</button>
+            <button class="btn" onclick="history.back();">이전으로</button>
+        </div>
     </div>
 </main>
 </body>
 </html>
 <script>
     $("#profile-img").click(function () {
-        $("#update-profile").trigger();
-    })
+        $("#update-profile").trigger("click");
+    });
+    $("#update-profile").change(function (e) {
+        let file = e.target.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $("#profile-img").attr("src", e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    $("#mypage-save").click(function () {
+        let form = new FormData();
+        form.append("name", $("#mypage-name").val());
+        form.append("description", $("#mypage-description").val());
+        form.append("upload", $("#update-profile")[0].files[0]);
+        $.ajax({
+            type: "post",
+            dataType: "text",
+            data: form,
+            processData: false,
+            contentType: false,
+            url: "./api/updateProfile",
+            success: function (res) {
+                alert("변경 사항 저장")
+                console.log(res);
+            },
+            error: function () {
+                alert("변경 사항 저장 실패")
+            }
+        })
+    });
 </script>

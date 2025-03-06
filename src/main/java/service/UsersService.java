@@ -31,4 +31,7 @@ public class UsersService {
     public UsersDTO getUserById(int userId) {
         return usersMapper.getUserById(userId);
     }
+    public void updateUserById(UsersDTO dto) {
+        usersMapper.updateUserById(dto);
+    }
 }
