@@ -17,9 +17,21 @@
 </style>
 
 <body>
-<div th:if="${session.loginstatus}">
-    <p style="display: flex;">환영합니다, <img class="profile-home" th:src="${session.profileimage}"><span th:text="${session.nickname}"></span>님!
+<div th:if="${session.provider=='KAKAO'}" style="display: flex; justify-content: space-between;">
+    <p style="display: flex;">환영합니다, <img class="profile-home" th:src="${session.profileImage != null ? session.profileImage : '/images/noimage.png'}"><span
+            th:text="${session.name}"></span>님!
     </p>
+    <button type="button" id="logout-kakao" class="btn btn-outline-secondary"
+            th:attr="onclick='location.href=\'' + ${kakao_logout_uri} + '\''">로그아웃
+    </button>
+</div>
+<div th:if="${session.provider=='NAVER'}" style="display: flex; justify-content: space-between;">
+    <p style="display: flex;">환영합니다, <img class="profile-home" th:src="${dto.profileImage != null ? dto.profileImage : '/images/noimage.png'}"><span
+            th:text="${dto.name}"></span>님!
+    </p>
+    <button type="button" id="logout-naver" class="btn btn-outline-secondary"
+            th:attr="onclick='location.href=\'' + ${naver_logout_uri} + '\''">로그아웃
+    </button>
 </div>
 <header>
     <div>Logo</div>
@@ -65,3 +77,5 @@
 </body>
 
 </html>
+<script>
+</script>

@@ -4,7 +4,7 @@ import org.apache.ibatis.type.Alias;
 
 import lombok.Data;
 
-@Alias("UserDTO")
+@Alias("UsersDTO")
 @Data
 public class UsersDTO {
 	private int id;
@@ -12,11 +12,11 @@ public class UsersDTO {
 	private String name;
 	private String phone;
 	private String birth;
-	private String profile_image;
+	private String profileImage;
 	private String description;
 	private String provider;
-	private int is_admin;
-	private String created_at;
-	private String updated_at;
-	private String deleted_at;
+	private int isAdmin;
+	private String createdAt;
+	private String updatedAt;
+	private String deletedAt;
 }
