@@ -15,6 +15,22 @@
 		</ul>
 	</div>
 	<div style="display: flex; gap: 10px; align-items: center;">
+		<div th:if="${session.provider=='KAKAO'}" style="display: flex; justify-content: space-between;">
+			<p style="display: flex;">환영합니다, <img class="profile-home" th:src="${session.profileImage != null ? session.profileImage : '/images/noimage.png'}"><span
+					th:text="${session.name}"></span>님!
+			</p>
+			<button type="button" id="logout-kakao" class="btn btn-outline-secondary"
+					th:attr="onclick='location.href=\'' + ${session.kakao_logout_uri} + '\''">로그아웃
+			</button>
+		</div>
+		<div th:if="${session.provider=='NAVER'}" style="display: flex; justify-content: space-between;">
+			<p style="display: flex;">환영합니다, <img class="profile-home" th:src="${session.profileImage != null ? session.profileImage : '/images/noimage.png'}"><span
+					th:text="${session.name}"></span>님!
+			</p>
+			<button type="button" id="logout-naver" class="btn btn-outline-secondary"
+					th:attr="onclick='location.href=\'' + ${session.naver_logout_uri} + '\''">로그아웃
+			</button>
+		</div>
 		<a class="btn btn-ghost" th:if="${session.userId == null}" href="/login">로그인</a>
 		<a class="btn btn-ghost" th:if="${session.userId == null}" href="/signup">회원가입</a>
 		<div style="user-select: none;" th:if="${session.userId != null}">
@@ -29,7 +45,7 @@
 				<ul tabindex="0"
 					class="dropdown-content menu bg-base-100 rounded-box z-1 w-40 p-2 shadow-sm">
 					<li><a href="/profile">내 프로필</a></li>
-					<li><a href="/logout">로그아웃</a></li>
+					<!-- <li><a href="/logout">로그아웃</a></li> -->
 				</ul>
 			</div>
 		</div>
