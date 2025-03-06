@@ -17,9 +17,13 @@
 </style>
 
 <body>
-<div th:if="${session.loginstatus}">
-    <p style="display: flex;">환영합니다, <img class="profile-home" th:src="${session.profileimage}"><span th:text="${session.nickname}"></span>님!
+<div th:if="${session.loginstatus}" style="display: flex; justify-content: space-between;">
+    <p style="display: flex;">환영합니다, <img class="profile-home" th:src="${session.profileimage}"><span
+            th:text="${session.nickname}"></span>님!
     </p>
+    <button type="button" id="logout" class="btn btn-outline-secondary"
+            th:attr="onclick='location.href=\'' + ${logout_uri} + '\''">로그아웃
+    </button>
 </div>
 <header>
     <div>Logo</div>
@@ -65,3 +69,5 @@
 </body>
 
 </html>
+<script>
+</script>

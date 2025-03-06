@@ -23,13 +23,17 @@ public class PageController {
     private String client_id;
     @Value("${kakao.redirect_uri}")
     private String redirect_uri;
+    @Value("${kakao.logout_uri}")
+    private String logout_uri;
     @Autowired
     KakaoService kakaoService;
     @Autowired
     UsersService usersService;
 
     @GetMapping("/home")
-    public String hello() {
+    public String hello(Model model) {
+        String logoutLocation = "https://kauth.kakao.com/oauth/logout";
+        model.addAttribute("logout_uri", logoutLocation+"?client_id="+client_id+"&logout_redirect_uri="+logout_uri);
         return "home";
     }
 
@@ -39,6 +43,14 @@ public class PageController {
         model.addAttribute("location", location);
 
         return "login";
+    }
+    @GetMapping("/logout/oauth2/kakao")
+    public String logout(HttpSession session) {
+        session.removeAttribute("loginstatus");
+        session.removeAttribute("nickname");
+        session.removeAttribute("profileimage");
+
+        return "redirect:/home";
     }
 
     @GetMapping("/login/oauth2/code/kakao")
