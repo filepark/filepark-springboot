@@ -8,5 +8,5 @@ import mapper.AccessLogMapper;
 @Service
 @AllArgsConstructor
 public class AccessLogService {
-	final AccessLogMapper accessLogMapper;
+	AccessLogMapper accessLogMapper;
 }

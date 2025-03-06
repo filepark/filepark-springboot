@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class AccessLogDTO {
 	private int id;
-	private int user_id;
+	private int userId;
 	private String agent;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private Timestamp created_at;

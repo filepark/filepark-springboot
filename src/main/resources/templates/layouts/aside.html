@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<aside style="width: 300px; height: calc(100vh - 80px); padding: 20px; position: fixed; top: 80px;" th:fragment="aside">
+    <p>파일 공유 그룹</p>
+    <div id="groups-list" style="margin: 10px 0; width: 100%; height: 70vh; overflow-y: scroll; display: flex; flex-direction: column; gap: 20px;"></div>
+    <div class="groups-add">
+        <button class="btn">새로운 그룹 참여</button>
+    </div>
+    <script>
+        $(() => {
+            $.ajax({
+                url: '/api/group-list',
+                method: 'GET',
+                success: function (data) {
+                    console.log(data);
+                    const groupsList = $('#groups-list');
+                    groupsList.empty();
+                    data.groups.forEach((group) => {
+                        groupsList.append(`
+                            <a class="lg:tooltip" data-tip="${group.host.name}" href="/groups/${group.id}" style="width: 100%; height: 80px; display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1.5px solid black; border-radius: 10px; padding: 10px;">
+                                <span style="width: 175px; padding: 0 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${group.name}</span>
+                                <span style="width: 50px; border-radius: 100%; overflow: hidden; z-index: 99;">
+                                    <img src="${group.host.profileImage}" alt="방장 프로필 이미지">
+                                </span>
+                            </a>
+                        `);
+                    });
+                },
+                beforeSend: function () {
+                    $('#groups-list').append('<div class="skeleton" style="width: 100%; height: 80px;"></div>');
+                    $('#groups-list').append('<div class="skeleton" style="width: 100%; height: 80px;"></div>');
+                    $('#groups-list').append('<div class="skeleton" style="width: 100%; height: 80px;"></div>');
+                    $('#groups-list').append('<div class="skeleton" style="width: 100%; height: 80px;"></div>');
+                    $('#groups-list').append('<div class="skeleton" style="width: 100%; height: 80px;"></div>');
+                },
+                error: function (error) {
+                    console.error('Error fetching group list:', error);
+                }
+            });
+        });
+    </script>
+</aside>
+</html>

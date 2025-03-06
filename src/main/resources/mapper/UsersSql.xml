@@ -16,8 +16,11 @@
         <result property="deletedAt" column="deleted_at" />
     </resultMap>
     <insert id="signUp" parameterType="map">
-        insert into users (name, profileImage, email) values (#{name}, #{profileImage},#{email})
+        insert into users (name, profile_image, email) values (#{name}, #{profileImage},#{email})
     </insert>
+    <select id="readUserById" parameterType="int" resultMap="userResultMap">
+	    SELECT * FROM users WHERE id = #{id}
+	</select>
     <select id="chkMemberKakao" parameterType="map" resultType="int">
         select count(*) from users where name=#{name} and profile_image=#{profileImage}
     </select>

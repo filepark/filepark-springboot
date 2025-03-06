@@ -4,7 +4,6 @@ import dto.KakaoUserInfoResponseDto;
 import dto.NaverProfileDto;
 import dto.UsersDTO;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -12,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import service.KakaoService;
 import service.NaverService;
 import service.UsersService;
@@ -46,10 +45,14 @@ public class PageController {
         if (provider=="NAVER") {
             int userId = (int) session.getAttribute("userId");
             UsersDTO dto = usersService.getUserById(userId);
-            model.addAttribute("dto", dto);
-            model.addAttribute("naver_logout_uri", "http://localhost:8888/logout/oauth2/naver" + "?accessToken=" + session.getAttribute("accessToken"));
+//            model.addAttribute("dto", dto);
+//            model.addAttribute("naver_logout_uri", "http://localhost:8888/logout/oauth2/naver" + "?accessToken=" + session.getAttribute("accessToken"));
+            session.setAttribute("name", dto.getName());
+            session.setAttribute("profileImage", dto.getProfileImage());
+            session.setAttribute("naver_logout_uri", "http://localhost:8888/logout/oauth2/naver" + "?accessToken=" + session.getAttribute("accessToken"));
         } else if (provider=="KAKAO") {
-            model.addAttribute("kakao_logout_uri", logoutLocation + "?client_id=" + kakaoClientId + "&logout_redirect_uri=" + logoutUri);
+//            model.addAttribute("kakao_logout_uri", logoutLocation + "?client_id=" + kakaoClientId + "&logout_redirect_uri=" + logoutUri);
+            session.setAttribute("kakao_logout_uri", logoutLocation + "?client_id=" + kakaoClientId + "&logout_redirect_uri=" + logoutUri);
         }
 
         return "home";
@@ -61,12 +64,18 @@ public class PageController {
         String naverLogin = "https://nid.naver.com/oauth2.0/authorize?response_type=code&state=STATE_STRING&client_id=" + naverClientId + "&redirect_uri=" + naverRedirectUri;
         model.addAttribute("kakaoLogin", kakaoLogin);
         model.addAttribute("naverLogin", naverLogin);
-
         return "login";
     }
 
+	@GetMapping("/groups/{groupId}")
+	public String groups(@PathVariable int groupId, Model model) {
+		model.addAttribute("groupId", groupId);
+		return "groups";
+	}
+
+
     @GetMapping("/login/oauth2/code/kakao")
-    public String kakaoCallback(@RequestParam("code") String code, HttpSession session) throws IOException {
+    public String kakaoCallback(@RequestParam String code, HttpSession session) throws IOException {
         String accessToken = kakaoService.getAccessTokenFromKakao(code);
         System.out.println("kakaoAccessToken = " + accessToken);
         KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(accessToken);
@@ -89,18 +98,14 @@ public class PageController {
 
     @GetMapping("/logout/oauth2/kakao")
     public String logout(HttpSession session) {
-//        session.removeAttribute("loginstatus");
-//        session.removeAttribute("nickname");
-//        session.removeAttribute("profileimage");
-//        session.removeAttribute("provider");
         session.invalidate();
 
         return "redirect:/home";
     }
 
     @GetMapping("/login/oauth2/code/naver")
-    public String naverCallback(@RequestParam("code") String code,
-                                @RequestParam("state") String state,
+    public String naverCallback(@RequestParam String code,
+                                @RequestParam String state,
                                 HttpSession session) throws IOException {
         // 접근 토큰 발급 요청
         String accessToken = naverService.getAccessToken(code, state);
@@ -126,7 +131,7 @@ public class PageController {
     }
 
     @GetMapping("/logout/oauth2/naver")
-    public String logout(@RequestParam("accessToken") String accessToken, HttpSession session) {
+    public String logout(@RequestParam String accessToken, HttpSession session) {
         naverService.logout(accessToken);
         session.invalidate();
         return "redirect:/home";  // 로그아웃 후 리다이렉트

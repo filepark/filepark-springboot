@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet"
+	type="text/css" />
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="stylesheet" href="/styles/index.css">
+<title>File Park - Group</title>
+</head>
+
+<body>
+    <header th:replace="~{/layouts/header :: header}"></header>
+    <aside th:replace="~{/layouts/aside :: aside}"></aside>
+	<p th:text="${groupId}"></p>
+    <main style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 300px);">
+        <div style="display: flex; flex-direction: row-reverse;">
+            <div style="width: 200px; height: 100px;">
+                <p>그룹 참여자</p>
+                <div class="participants-list">
+                    <div class="tooltip" data-tip="hello">
+                        <div class="avatar" tabindex="0" role="button" style="cursor: pointer;">
+                            <div class="rounded-full" style="width: 50px;">
+                                <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                            </div>
+                        </div>
+                      </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div>
+                <p>파일 목록</p>
+                <button>파일 업로드</button>
+            </div>
+            <div class="files-contents">
+                <div class="files-list"></div>
+            </div>
+        </div>
+    <button class="btn" onclick="itemModal.showModal()">open modal</button>
+    </main>
+    <dialog id="itemModal" class="modal">
+        <div class="modal-box">
+            <h3 class="text-lg font-bold">Hello!</h3>
+            <p class="py-4">Press ESC key or click the button below to close</p>
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn">닫기</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+</body>
+
+</html>

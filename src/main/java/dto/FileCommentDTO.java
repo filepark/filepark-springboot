@@ -10,13 +10,13 @@ import lombok.Data;
 @Data
 public class FileCommentDTO {
 	private int id;
-	private int comment_id;
-	private int user_id;
-	private int file_id;
+	private int commentId;
+	private int userId;
+	private int fileId;
 	private String comment;
-	private String deleted_by;
+	private String deletedBy;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-	private String created_at;
+	private String createdAt;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-	private String deleted_at;
+	private String deletedAt;
 }
