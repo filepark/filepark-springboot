@@ -13,9 +13,13 @@ import lombok.Data;
 public class FilesDTO {
 	private int id;
 	private int userId;
+	private UsersDTO owner;
 	private int groupId;
+	private GroupsDTO group;
+	private String fileName;
+	private String storedName;
 	private String bucketUri;
-	private String bucketPath;
+	private String filePath;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private Timestamp createdAt;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
