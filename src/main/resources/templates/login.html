@@ -9,17 +9,20 @@
     <title>Login to File Park</title>
 </head>
 <style>
-    .login-box{
+    .login-box {
         margin-bottom: 10px;
         text-align: center;
     }
+
     .btn-box {
         margin-top: 50px;
     }
-    .btn-login{
+
+    .btn-login {
         width: 200px;
         height: 50px;
     }
+
     .login-container {
         width: 600px;
         height: 700px;
@@ -35,6 +38,7 @@
         margin: 200px auto;
         border-radius: 20px;
     }
+
     .login-provider {
         font-size: 18px;
         font-weight: bold;
@@ -47,18 +51,19 @@
     <div class="login-box">
         <span class="login-provider">카카오 로그인</span>
         <a th:href="${kakaoLogin}">
-            <img class="btn-login" src="/images/kakao_login_medium_narrow.png" >
+            <img class="btn-login" src="/images/kakao_login_medium_narrow.png">
         </a>
     </div>
     <div class="login-box">
         <span class="login-provider">네이버 로그인</span>
         <a th:href="${naverLogin}">
-            <img class="btn-login" src="/images/naver_btnG_login.png" >
+            <img class="btn-login" src="/images/naver_btnG_login.png">
         </a>
     </div>
     <div class="btn-box">
         <button type="button" class="btn btn-info btn-login" style="border-radius: 5px"
-                onclick="location.href='./home'">홈으로 이동하기</button>
+                onclick="location.href='./home'">홈으로 이동하기
+        </button>
     </div>
 </div>
 </body>

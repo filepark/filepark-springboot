@@ -18,6 +18,8 @@ import service.NaverService;
 import service.UsersService;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 @Controller
 public class PageController {
@@ -39,10 +41,11 @@ public class PageController {
     private NaverService naverService;
 
     @GetMapping("/home")
-    public String hello(Model model, HttpSession session) {
+    public String hello(HttpSession session) throws ParseException {
         String logoutLocation = "https://kauth.kakao.com/oauth/logout";
         String provider = (String) session.getAttribute("provider");
         if (provider=="NAVER") {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             int userId = (int) session.getAttribute("userId");
             UsersDTO dto = usersService.getUserById(userId);
 //            model.addAttribute("dto", dto);
@@ -50,6 +53,9 @@ public class PageController {
             session.setAttribute("name", dto.getName());
             session.setAttribute("profileImage", dto.getProfileImage());
             session.setAttribute("naver_logout_uri", "http://localhost:8888/logout/oauth2/naver" + "?accessToken=" + session.getAttribute("accessToken"));
+            String createdAt = sdf.format(sdf.parse(dto.getCreatedAt()));
+            session.setAttribute("createdAt", createdAt);
+            session.setAttribute("description", dto.getDescription());
         } else if (provider=="KAKAO") {
 //            model.addAttribute("kakao_logout_uri", logoutLocation + "?client_id=" + kakaoClientId + "&logout_redirect_uri=" + logoutUri);
             session.setAttribute("kakao_logout_uri", logoutLocation + "?client_id=" + kakaoClientId + "&logout_redirect_uri=" + logoutUri);

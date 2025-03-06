@@ -96,6 +96,6 @@ public class NaverService {
                 String.class);
 
         // 로그아웃 성공 여부 확인
-        System.out.println("로그아웃 응답 = " + response.getBody());
+//        System.out.println("로그아웃 응답 = " + response.getBody());
     }
 }
