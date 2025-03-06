@@ -14,14 +14,13 @@ import reactor.core.publisher.Mono;
 import org.springframework.http.HttpStatusCode;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class KakaoService {
 
     private String clientId;
     private final String KAUTH_TOKEN_URL_HOST;
     private final String KAUTH_USER_URL_HOST;
-
     @Autowired
     public KakaoService(@Value("${kakao.client_id}") String clientId) {
         this.clientId = clientId;

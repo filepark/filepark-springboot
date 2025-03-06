@@ -2,6 +2,7 @@ package controller;
 
 import dto.KakaoUserInfoResponseDto;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ public class PageController {
     @Autowired
     KakaoService kakaoService;
     @Autowired
-    private UsersService usersService;
+    UsersService usersService;
 
     @GetMapping("/home")
     public String hello() {
