@@ -39,6 +39,10 @@ public class PageController {
     UsersService usersService;
     @Autowired
     private NaverService naverService;
+    @Value("${ncp.bucketName}")
+    private String ncpBucketName;
+    @Value("${ncp.endPoint}")
+    private String ncpEndPoint;
 
     @GetMapping("/home")
     public String hello(HttpSession session) throws ParseException {
@@ -132,6 +136,7 @@ public class PageController {
             session.setAttribute("accessToken", accessToken);
             session.setAttribute("userId", usersdto.getId());
             session.setAttribute("provider", "NAVER");
+            session.setAttribute("storageUrl",ncpEndPoint+"/"+ncpBucketName);
         }
         return "redirect:/home";
     }
