@@ -2,52 +2,36 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <title>File Park - Home</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+	<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+	<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+	<title>File Park - Home</title>
 </head>
 
-
 <body>
-    <header th:replace="~{/layouts/header :: header}"></header>
-    <aside th:replace="~{/layouts/aside :: aside}"></aside>
-    <main style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 300px); height: calc(100vh - 80px);">
-        <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;">
-            <button>새 그룹 만들기</button>
-            <button>그룹에 참여하기</button>
-
-        </div>
-    </main>
-    <dialog id="itemModal" class="modal">
-        <div class="modal-box">
-            <h3 class="text-lg font-bold">Hello!</h3>
-            <p class="py-4">Press ESC key or click the button below to close</p>
-            <div class="modal-action">
-                <form method="dialog">
-                    <button class="btn">닫기</button>
-                </form>
-            </div>
-        </div>
-        <div class="files-contents">
-            <div class="files-list"></div>
-        </div>
-    </div>
-</main>
-<button class="btn" onclick="my_modal_1.showModal()">open modal</button>
-<dialog id="my_modal_1" class="modal">
-    <div class="modal-box">
-        <h3 class="text-lg font-bold">Hello!</h3>
-        <p class="py-4">Press ESC key or click the button below to close</p>
-        <div class="modal-action">
-            <form method="dialog">
-                <button class="btn">닫기</button>
-            </form>
-        </div>
-    </div>
-</dialog>
+	<header th:replace="~{/layouts/header :: header}"></header>
+	<aside th:replace="~{/layouts/aside :: aside}"></aside>
+	<main
+		style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 300px); height: calc(100vh - 80px);">
+		<div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; gap: 10px;">
+			<button class="btn btn-soft btn-primary" onclick="createGroupModal.showModal()">새 그룹 만들기</button>
+			<button class="btn btn-soft btn-info" onclick="participantModal.showModal()">새 그룹에 참여</button>
+		</div>
+	</main>
+	<dialog id="createGroupModal" class="modal">
+		<div class="modal-box">
+			<h3 class="text-lg font-bold">새 그룹 만들기</h3>
+			<hr style="margin: 10px 0;">
+			<p class="py-4">새 그룹 만들기</p>
+			<div class="modal-action">
+				<form method="dialog">
+					<button class="btn">닫기</button>
+				</form>
+			</div>
+		</div>
+	</dialog>
 </body>
 
 </html>

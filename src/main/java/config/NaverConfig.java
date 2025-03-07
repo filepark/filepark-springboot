@@ -15,4 +15,5 @@ public class NaverConfig {
 	private String secretKey;
 	private String regionName;
 	private String endPoint;
+	private String bucketName;
 }

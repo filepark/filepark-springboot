@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import dto.GroupsDTO;
+import dto.JunctionUsersGroupsDTO;
 import dto.UsersDTO;
 import lombok.AllArgsConstructor;
 import mapper.JunctionUsersGroupsMapper;
@@ -15,6 +16,10 @@ import mapper.UsersMapper;
 public class JunctionUsersGroupsService {
 	JunctionUsersGroupsMapper junctionUsersGroupsMapper;
 	UsersMapper usersMapper;
+	
+	public void createJunctionUsersGroups(JunctionUsersGroupsDTO junctionDTO) {
+		junctionUsersGroupsMapper.createJunctionUsersGroups(junctionDTO);
+	}
 
 	public List<GroupsDTO> readGroupListByUserId(int userId) {
 		List<GroupsDTO> list = junctionUsersGroupsMapper.readGroupListByUserId(userId);
@@ -27,5 +32,13 @@ public class JunctionUsersGroupsService {
 
 	public int readGroupCountByUserId(int userId) {
 		return junctionUsersGroupsMapper.readGroupCountByUserId(userId);
+	}
+	
+	public List<UsersDTO> readUserListByGroupId(int groupId) {
+		return junctionUsersGroupsMapper.readUserListByGroupId(groupId);
+	}
+	
+	public int readUserCountByGroupId(int groupId) {
+		return junctionUsersGroupsMapper.readUserCountByGroupId(groupId);
 	}
 }

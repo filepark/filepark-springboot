@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper.JunctionUsersGroupsMapper">
-	<resultMap id="GroupResultMap" type="GroupsDTO">
-         <id property="id" column="id" />
-         <result property="userId" column="user_id" />
-         <result property="name" column="name" />
-         <result property="description" column="description" />
-         <result property="maxUser" column="max_user" />
-         <result property="createdAt" column="created_at" />
-         <result property="updatedAt" column="updated_at" />
+    <resultMap id="userResultMap" type="UsersDTO">
+        <id property="id" column="id" />
+        <result property="email" column="email" />
+        <result property="name" column="name" />
+        <result property="phone" column="phone" />
+        <result property="birth" column="birth" />
+        <result property="profileImage" column="profile_image" />
+        <result property="description" column="description" />
+        <result property="provider" column="provider" />
+        <result property="isAdmin" column="is_admin" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="deletedAt" column="deleted_at" />
+    </resultMap>
+	<resultMap id="groupResultMap" type="GroupsDTO">
+		<id property="id" column="id" />
+		<result property="userId" column="user_id" />
+		<result property="name" column="name" />
+		<result property="description" column="description" />
+		<result property="maxUser" column="max_user" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
 	</resultMap>
-	<select id="readGroupListByUserId" parameterType="int" resultMap="GroupResultMap">
+	<insert id="createJunctionUsersGroups" parameterType="map">
+		INSERT INTO junction_users_groups (user_id, group_id) VALUES (#{userId}, #{groupId})
+	</insert>
+	<select id="readGroupListByUserId" parameterType="int" resultMap="groupResultMap">
 		SELECT g.id, g.user_id, g.`name`, g.`description`, g.max_user, g.created_at, g.updated_at FROM `groups` AS g
 		LEFT JOIN junction_users_groups AS jug ON g.id = jug.group_id
         WHERE jug.user_id = #{userId}
@@ -19,5 +36,16 @@
 		SELECT COUNT(*) FROM `groups` AS g
 		LEFT JOIN junction_users_groups AS jug ON g.id = jug.group_id
         WHERE jug.user_id = #{userId}
+	</select>
+	<select id="readUserListByGroupId" parameterType="int" resultMap="userResultMap">
+		SELECT u.id, u.email, u.`name`, u.phone, u.birth, u.profile_image, u.`description`, u.provider, u.is_admin, u.created_at, u.updated_at,
+		u.deleted_at FROM users AS u
+		LEFT JOIN junction_users_groups AS jug ON u.id = jug.user_id
+		WHERE jug.group_id = #{groupId}
+	</select>
+	<select id="readUserCountByGroupId" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM users AS u
+		LEFT JOIN junction_users_groups AS jug ON u.id = jug.user_id
+		WHERE jug.group_id = #{groupId}
 	</select>
 </mapper>

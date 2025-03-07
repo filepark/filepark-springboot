@@ -52,17 +52,11 @@ public class PageController {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             int userId = (int) session.getAttribute("userId");
             UsersDTO dto = usersService.getUserById(userId);
-//            model.addAttribute("dto", dto);
-//            model.addAttribute("naver_logout_uri", "http://localhost:8888/logout/oauth2/naver" + "?accessToken=" + session.getAttribute("accessToken"));
             session.setAttribute("name", dto.getName());
             session.setAttribute("profileImage", dto.getProfileImage());
-            session.setAttribute("naver_logout_uri", "http://localhost:8888/logout/oauth2/naver" + "?accessToken=" + session.getAttribute("accessToken"));
-            String createdAt = sdf.format(sdf.parse(dto.getCreatedAt()));
-            session.setAttribute("createdAt", createdAt);
-            session.setAttribute("description", dto.getDescription());
+            session.setAttribute("logout_uri", "http://localhost:8888/logout/oauth2/naver" + "?accessToken=" + session.getAttribute("accessToken"));
         } else if (provider=="KAKAO") {
-//            model.addAttribute("kakao_logout_uri", logoutLocation + "?client_id=" + kakaoClientId + "&logout_redirect_uri=" + logoutUri);
-            session.setAttribute("kakao_logout_uri", logoutLocation + "?client_id=" + kakaoClientId + "&logout_redirect_uri=" + logoutUri);
+            session.setAttribute("logout_uri", logoutLocation + "?client_id=" + kakaoClientId + "&logout_redirect_uri=" + logoutUri);
         }
 
         return "home";
@@ -83,6 +77,11 @@ public class PageController {
 		return "groups";
 	}
 
+    @GetMapping("/groups/{groupId}/setting")
+    public String method(@PathVariable int groupId, Model model) {
+    	model.addAttribute("groupId", groupId);
+        return "groups/setting";
+    }
 
     @GetMapping("/login/oauth2/code/kakao")
     public String kakaoCallback(@RequestParam String code, HttpSession session) throws IOException {
@@ -94,7 +93,7 @@ public class PageController {
             String nickname = userInfo.getKakaoAccount().getProfile().getNickName();
             String profileImage = userInfo.getKakaoAccount().getProfile().getProfileImageUrl();
 
-            session.setAttribute("userId", "1");
+            session.setAttribute("userId", "0");
             session.setAttribute("name", nickname);
             session.setAttribute("profileImage", profileImage);
             session.setAttribute("provider", "KAKAO");
@@ -156,15 +155,5 @@ public class PageController {
     @GetMapping("/profile")
     public String profile() {
         return "profile";
-    }
-
-    @GetMapping("/groups")
-    public String groups() {
-        return "groups";
-    }
-
-    @GetMapping("/groups/setting")
-    public String method() {
-        return "groups/setting";
     }
 }
