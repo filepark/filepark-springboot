@@ -24,11 +24,11 @@
 			<div class="dropdown dropdown-start">
 				<div class="avatar" tabindex="0" role="button" style="cursor: pointer;">
 					<div class="rounded-full" style="width: 50px;">
-						<img th:src="${session.profileImage != null ? session.profileImage : '/images/noimage.png'}" />
+						<img th:src="${session.profileImage.startsWith('http')? session.profileImage : session.storageUrl+'/profile/'+session.profileImage}" />
 					</div>
 				</div>
 				<ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-1 w-40 p-2 shadow-sm">
-					<li><a href="/profile">내 프로필</a></li>
+					<li><a th:href="'/profile?id='+${session.userId}">내 프로필</a></li>
 					<li><a th:href="${session.logout_uri}">로그아웃</a></li>
 				</ul>
 			</div>

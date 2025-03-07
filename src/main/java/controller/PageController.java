@@ -135,6 +135,7 @@ public class PageController {
             session.setAttribute("accessToken", accessToken);
             session.setAttribute("userId", usersdto.getId());
             session.setAttribute("provider", "NAVER");
+            session.setAttribute("createdAt",usersdto.getCreatedAt());
             session.setAttribute("storageUrl",ncpEndPoint+"/"+ncpBucketName);
         }
         return "redirect:/home";
@@ -153,7 +154,7 @@ public class PageController {
     }
 
     @GetMapping("/profile")
-    public String profile() {
+    public String profile(@RequestParam int id) {
         return "profile";
     }
 }

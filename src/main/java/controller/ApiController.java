@@ -1,6 +1,5 @@
 package controller;
 
-import config.NcpObjectStorageService;
 import dto.UsersDTO;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,19 +10,20 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
+import service.ObjectStorageService;
 import service.UsersService;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class ApiController {
 	@Autowired
-	NcpObjectStorageService storageService;
+	ObjectStorageService storageService;
 	@Autowired
 	UsersService usersService;
-
-	@Value("${ncp.bucketName}")
-	private String ncpBucketName;
 
 	@GetMapping("")
 	public String test() {
@@ -37,19 +37,24 @@ public class ApiController {
 										   HttpSession session) {
 
 		UsersDTO dto = new UsersDTO();
-
+		int userId = (int) session.getAttribute("userId");
 		dto.setName(name);
 		dto.setDescription(description);
-		dto.setId((Integer) session.getAttribute("userId"));
-		dto.setProfileImage(session.getAttribute("profileImage").toString());
+		dto.setId(userId);
+		dto.setProfileImage(usersService.getUserById(userId).getProfileImage());
 		if (upload != null) {
-			String filename = storageService.uploadFile(ncpBucketName,"profile",upload);
+			String filename = storageService.uploadFile(storageService.getBucketName(),"profile",upload);
 			dto.setProfileImage(filename);
-			session.setAttribute("profileImage",filename);
 		}
 		usersService.updateUserById(dto);
-		session.setAttribute("name",dto.getName());
-		session.setAttribute("description",dto.getDescription());
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@PostMapping("/readUser")
+	public ResponseEntity<?> readUser(@RequestParam(value = "id", required = true) int id) throws ParseException {
+		UsersDTO dto = usersService.getUserById(id);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		dto.setCreatedAt(sdf.format(sdf.parse(dto.getCreatedAt())));
+		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 }
