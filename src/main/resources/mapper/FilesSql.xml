@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.FilesMapper">
+	<resultMap id="fileResultMap" type="FilesDTO">
+		<id property="id" column="id" />
+		<result property="userId" column="user_id" />
+		<result property="groupId" column="group_id" />
+		<result property="fileName" column="file_name" />
+		<result property="storedName" column="stored_name" />
+		<result property="bucketUri" column="bucket_uri" />
+		<result property="filePath" column="file_path" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+	</resultMap>
+	<insert id="createFile" parameterType="map">
+		INSERT INTO files (user_id, group_id, file_name, stored_name, bucket_uri, bucket_path)
+		VALUES (#{userId},
+		#{groupId}, #{fileName}, #{storedName}, #{bucketUri}, #{bucketPath})
+	</insert>
+	<select id="readFileListByGroupId" parameterType="int" resultMap="fileResultMap">
+		SELECT * FROM files WHERE group_id = #{groupId}
+	</select>
+	<select id="readFileCountByGroupId" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM files WHERE group_id = #{groupId}
+	</select>
+	<select id="readFileListByUserId" parameterType="int" resultMap="fileResultMap">
+		SELECT * FROM files WHERE user_id = #{userId}
+	</select>
+	<select id="readFileCountByUserId" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM files WHERE user_id = #{userId}
+	</select>
+	<select id="readFileById" parameterType="int" resultMap="fileResultMap">
+		SELECT * FROM files WHERE id = #{id}
+	</select>
+</mapper>

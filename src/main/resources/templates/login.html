@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <title>Login to File Park</title>
+</head>
+<style>
+    .login-box {
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .btn-box {
+        margin-top: 50px;
+    }
+
+    .btn-login {
+        width: 200px;
+        height: 50px;
+    }
+
+    .login-container {
+        width: 600px;
+        height: 700px;
+        background-color: #fff5ee;
+        box-shadow: 2px 2px 2px 2px lightgrey;
+        position: relative;
+        top: -100px;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin: 200px auto;
+        border-radius: 20px;
+    }
+
+    .login-provider {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+</style>
+<body>
+<div class="container login-container" style=" ">
+    <div class="login-box">
+        <span class="login-provider">카카오 로그인</span>
+        <a th:href="${kakaoLogin}">
+            <img class="btn-login" src="/images/kakao_login_medium_narrow.png">
+        </a>
+    </div>
+    <div class="login-box">
+        <span class="login-provider">네이버 로그인</span>
+        <a th:href="${naverLogin}">
+            <img class="btn-login" src="/images/naver_btnG_login.png">
+        </a>
+    </div>
+    <div class="btn-box">
+        <button type="button" class="btn btn-info btn-login" style="border-radius: 5px"
+                onclick="location.href='./home'">홈으로 이동하기
+        </button>
+    </div>
+</div>
+</body>
+</html>
