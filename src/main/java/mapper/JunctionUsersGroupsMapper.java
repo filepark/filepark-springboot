@@ -19,4 +19,6 @@ public interface JunctionUsersGroupsMapper {
 	public List<UsersDTO> readUserListByGroupId(int groupId);
 	
 	public int readUserCountByGroupId(int groupId);
+
+	public List<Integer> readGroupsByUserId(int userId);
 }

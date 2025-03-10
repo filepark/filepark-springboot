@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+    </style>
+</head>
+<body>
+<aside class="chat-t"
+       style="display: flex; flex-direction: column; width: 300px; height: calc(100vh - 80px); right: 0%; padding: 20px; position: fixed;
+       top: 80px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); background: linear-gradient(135deg, #a5fb64, #028a0f); border-radius: 10px;"
+       th:fragment="chat">
+    <input type="hidden" id="sessionUserId" th:value="${session.userId}">
+    <div style="display:flex; flex-direction: column">
+        <div id="messages" style="flex-grow: 1; overflow-y: auto; padding: 10px; height: calc(100vh - 160px);"></div>
+        <input type="text" placeholder="채팅 입력" class="input input-info" id="chat-input"
+               style="position: sticky; bottom: 10px; width: calc(100% - 40px); padding: 10px; border-radius: 20px; margin-top: 10px;">
+    </div>
+    <script>
+        let match = window.location.pathname.match(/\/groups\/(\d+)/);
+        let groupId = match ? match[1] : null;
+
+        $(document).ready(function () {
+            getChatLog();
+        });
+
+        function getChatLog() {
+            $.ajax({
+                type: "get",
+                url: `/api/chatLog/${groupId}`,
+                dataType: "json",
+                success: function (res) {
+                    res.forEach(function (message) {
+                        let sendtime = message.created_at.substring(11,16);
+                        let s = message.userId == $("#sessionUserId").val()
+                            ? `<div class="chat chat-end">
+                                <div class="chat-image avatar">
+                                    <div class="w-10 rounded-full">
+                                        <img src="${message.profileImage}"/>
+                                    </div>
+                                </div>
+                                <div class="chat-header">
+                                    ${message.userName}
+                                    <time class="text-xs opacity-50">${sendtime}</time>
+                                </div>
+                                <div class="chat-bubble" style="background-color: #FFDF46">${message.message}</div>
+                            </div>`
+                            : `<div class="chat chat-start">
+                                <div class="chat-image avatar">
+                                    <div class="w-10 rounded-full">
+                                        <img src="${message.profileImage}"/>
+                                    </div>
+                                </div>
+                                <div class="chat-header">
+                                    ${message.userName}
+                                    <time class="text-xs opacity-50">${sendtime}</time>
+                                </div>
+                                <div class="chat-bubble">${message.message}</div>
+                            </div>`;
+                        $("#messages").append(s);
+                    });
+                    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+
+                    // WebSocket 연결 (채팅 로그를 불러온 뒤에 연결)
+                    connectWebSocket();
+                }
+            });
+        }
+
+        function connectWebSocket() {
+            const socket = new WebSocket('ws://localhost:8888/ws/conn');
+
+            // WebSocket 연결 성공
+            socket.onopen = function () {
+                let userId = $("#sessionUserId").val();
+                let chatOpen = `new::${userId}::${groupId}`;
+                socket.send(chatOpen);
+                console.log('WebSocket 연결 성공');
+            };
+
+            // 메시지 수신 처리
+            socket.onmessage = function (event) {
+                let message = JSON.parse(event.data);
+                let s = message.id == $("#sessionUserId").val()
+                    ? `<div class="chat chat-end">
+                        <div class="chat-image avatar">
+                            <div class="w-10 rounded-full">
+                                <img src="${message.profileImage}"/>
+                            </div>
+                        </div>
+                        <div class="chat-header">
+                            ${message.name}
+                            <time class="text-xs opacity-50">${message.sendTime}</time>
+                        </div>
+                        <div class="chat-bubble" style="background-color: #FFDF46">${message.message}</div>
+                    </div>`
+                    : `<div class="chat chat-start">
+                        <div class="chat-image avatar">
+                            <div class="w-10 rounded-full">
+                                <img src="${message.profileImage}"/>
+                            </div>
+                        </div>
+                        <div class="chat-header">
+                            ${message.name}
+                            <time class="text-xs opacity-50">${message.sendTime}</time>
+                        </div>
+                        <div class="chat-bubble">${message.message}</div>
+                    </div>`;
+                $("#messages").append(s);
+                $("#messages").scrollTop($("#messages")[0].scrollHeight);
+            };
+
+            // WebSocket 연결 종료
+            socket.onclose = function () {
+                console.log('WebSocket 연결 종료');
+            };
+            // 연결 재시도
+            socket.onclose = function () {
+                console.log('WebSocket 연결 종료됨, 재연결 시도...');
+                setTimeout(connectWebSocket, 3000); // 3초 후 재연결 시도
+            };
+
+            // 오류 처리
+            socket.onerror = function (error) {
+                console.log('WebSocket Error:', error);
+            };
+
+            // 채팅 메시지 보내기
+            function sendMessage(message) {
+                let chatMessage = {
+                    message: message,
+                    sender: $("#sessionUserId").val(),
+                    groupId: groupId
+                };
+                socket.send(JSON.stringify(chatMessage));
+                $("#chat-input").val("");
+            }
+
+            $("#chat-input").keydown(function (event) {
+                if (event.key === "Enter") {
+                    sendMessage($(this).val());
+                }
+            });
+        }
+    </script>
+
+</aside>
+</body>
+
+</html>

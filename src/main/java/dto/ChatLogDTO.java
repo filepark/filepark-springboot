@@ -17,4 +17,6 @@ public class ChatLogDTO {
 	private String message;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private Timestamp created_at;
+	private String userName;
+	private String profileImage;
 }

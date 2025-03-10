@@ -16,7 +16,7 @@
         <result property="deletedAt" column="deleted_at" />
     </resultMap>
     <insert id="signUp" parameterType="map">
-        insert into users (name, profile_image, email) values (#{name}, #{profileImage},#{email})
+        insert into users (name, profile_image, email, provider) values (#{name}, #{profileImage},#{email},#{provider})
     </insert>
     <select id="readUserById" parameterType="int" resultMap="userResultMap">
 	    SELECT * FROM users WHERE id = #{id}

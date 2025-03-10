@@ -48,4 +48,7 @@
 		LEFT JOIN junction_users_groups AS jug ON u.id = jug.user_id
 		WHERE jug.group_id = #{groupId}
 	</select>
+	<select id="readGroupsByUserId" parameterType="int" resultType="int">
+		select group_id from junction_users_groups where user_id = #{userId}
+	</select>
 </mapper>

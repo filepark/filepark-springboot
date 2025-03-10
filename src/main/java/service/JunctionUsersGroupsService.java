@@ -41,4 +41,8 @@ public class JunctionUsersGroupsService {
 	public int readUserCountByGroupId(int groupId) {
 		return junctionUsersGroupsMapper.readUserCountByGroupId(groupId);
 	}
+
+	public List<Integer> readGroupsByUserId(int userId) {
+		return junctionUsersGroupsMapper.readGroupsByUserId(userId);
+	}
 }

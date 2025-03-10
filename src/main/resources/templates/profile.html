@@ -30,12 +30,11 @@
         <div style="display: flex; position:relative; left: -150px;">
             <input type="hidden" id="sessionUserId" th:value="${session.userId}">
             <input type="file" id="update-profile" style="display: none;">
-            <img th:src="${session.profileImage.startsWith('http')? session.profileImage : session.storageUrl+'/profile/'+session.profileImage}"
-                 onerror="this.src='/images/noimage.png'" class="profile-img">
+            <img src="" onerror="this.src='/images/noimage.png'" class="profile-img">
             <div style="display: flex; flex-direction: column; justify-content: center; margin-left: 50px;">
-                <input type="text" th:value="${session.name}" placeholder="이름 입력" , class="input" id="mypage-name"
+                <input type="text" placeholder="이름 입력" , class="input" id="mypage-name"
                        style="border-radius: 5px; padding: 10px; height: 50px; width: 300px; margin-bottom: 10px;">
-                <input type="text" th:value="'가입일 : '+${session.createdAt}" class="input" readonly id="mypage-createdAt"
+                <input type="text" class="input" readonly id="mypage-createdAt"
                        style="background-color: lightgrey; padding: 10px; border-radius: 5px; height: 50px; width: 300px; font-weight: bold;">
             </div>
         </div>
@@ -72,7 +71,7 @@
                         // 이미지 클릭 이벤트 비활성화
                         $(".profile-img").off("click");
                         // 버튼 비활성화
-                        $("mypage-save").prop("disabled",true);
+                        $("#mypage-save").prop("disabled",true);
                     } else {
                         $("#mypage-name").prop("readonly", false);
                         $("#mypage-description").prop("readonly", false);

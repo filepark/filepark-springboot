@@ -9,12 +9,13 @@
 	<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 	<title>File Park - Home</title>
 </head>
-
+<style>
+</style>
 <body>
 	<header th:replace="~{/layouts/header :: header}"></header>
 	<aside th:replace="~{/layouts/aside :: aside}"></aside>
 	<main
-		style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 300px); height: calc(100vh - 80px);">
+		style="margin-top: 80px; margin-left: 300px; margin-right: 300px; padding: 20px; width: calc(100% - 300px); height: calc(100vh - 80px);">
 		<div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; gap: 10px;">
 			<button class="btn btn-soft btn-primary" onclick="createGroupModal.showModal()">새 그룹 만들기</button>
 			<button class="btn btn-soft btn-info" onclick="participantModal.showModal()">새 그룹에 참여</button>
@@ -35,3 +36,6 @@
 </body>
 
 </html>
+<script>
+
+</script>

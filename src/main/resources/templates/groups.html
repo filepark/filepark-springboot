@@ -15,8 +15,9 @@
 <body>
     <header th:replace="~{/layouts/header :: header}"></header>
     <aside th:replace="~{/layouts/aside :: aside}"></aside>
+    <aside th:replace="~{/layouts/chat :: chat}"></aside>
 	<p th:text="${groupId}"></p>
-    <main style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 300px);">
+    <main style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 600px);">
         <div style="display: flex; flex-direction: row-reverse;">
             <div style="width: 200px; height: 100px;">
                 <p>그룹 참여자</p>
@@ -56,3 +57,7 @@
 </body>
 
 </html>
+<script>
+
+
+</script>

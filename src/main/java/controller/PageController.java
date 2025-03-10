@@ -98,7 +98,7 @@ public class PageController {
             session.setAttribute("profileImage", profileImage);
             session.setAttribute("provider", "KAKAO");
             if (usersService.chkMemberKakao(nickname, profileImage) == 0) {
-                usersService.signUp(nickname, profileImage, "");
+                usersService.signUp(nickname, profileImage,"", "KAKAO");
                 System.out.println(nickname + "님 회원가입");
             }
         }
@@ -128,7 +128,7 @@ public class PageController {
             String profileImage = userInfo.getProfileImage();
             String email = userInfo.getEmail();
             if (usersService.chkMember(email) == 0) {
-                usersService.signUp(name, profileImage, email);
+                usersService.signUp(name, profileImage, email ,"NAVER");
                 System.out.println(name + "님 회원가입");
             }
             UsersDTO usersdto = usersService.getUserByEmail(email);
@@ -157,4 +157,5 @@ public class PageController {
     public String profile(@RequestParam int id) {
         return "profile";
     }
+
 }
