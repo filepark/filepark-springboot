@@ -15,7 +15,6 @@ public class NaverProfileDto {
     public NaverProfileDto(String jsonResponseBody) {
         JsonParser jsonParser = new JsonParser();
         JsonElement element = jsonParser.parse(jsonResponseBody);
-//        System.out.println("element = " + element);
 
         this.id = element.getAsJsonObject().get("response").getAsJsonObject().get("id").getAsString();
         this.name = element.getAsJsonObject().get("response").getAsJsonObject().get("name").getAsString();

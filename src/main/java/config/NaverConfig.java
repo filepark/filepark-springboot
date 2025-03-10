@@ -16,4 +16,5 @@ public class NaverConfig {
 	private String regionName;
 	private String endPoint;
 	private String bucketName;
+	private String optimizerEndPoint;
 }
