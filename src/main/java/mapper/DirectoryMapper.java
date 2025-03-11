@@ -19,4 +19,6 @@ public interface DirectoryMapper {
 	public List<DirectoryDTO> readDirectoryListByGroupIdAndDirectoryId(int groupId, int directoryId);
 	
 	public void updateDirectoryById(DirectoryDTO directoryDTO);
+	
+	public void deleteDirectoryById(int id);
 }

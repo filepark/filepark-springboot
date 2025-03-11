@@ -89,7 +89,7 @@ public class GroupController {
 	}
 
 	@GetMapping("/{hashedId}/user")
-	public ResponseEntity<Object> getUser(@PathVariable String hashedId, HttpSession session) {
+	public ResponseEntity<Object> getUser(@PathVariable String hashedId) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		GroupsDTO group = groupsService.readGroupByHashedId(hashedId);
 		if (group == null) {
