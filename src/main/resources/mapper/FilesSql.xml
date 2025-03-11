@@ -5,18 +5,24 @@
 		<id property="id" column="id" />
 		<result property="userId" column="user_id" />
 		<result property="groupId" column="group_id" />
+		<result property="directoryId" column="directory_id" />
 		<result property="fileName" column="file_name" />
 		<result property="storedName" column="stored_name" />
-		<result property="bucketUri" column="bucket_uri" />
-		<result property="filePath" column="file_path" />
+		<result property="fileUri" column="file_uri" />
 		<result property="createdAt" column="created_at" />
 		<result property="updatedAt" column="updated_at" />
 	</resultMap>
 	<insert id="createFile" parameterType="map">
-		INSERT INTO files (user_id, group_id, file_name, stored_name, bucket_uri, bucket_path)
-		VALUES (#{userId},
-		#{groupId}, #{fileName}, #{storedName}, #{bucketUri}, #{bucketPath})
+		INSERT INTO files (user_id, group_id, directory_id, file_name, stored_name, file_uri)
+		VALUES (#{userId}, #{groupId}, #{directoryId}, #{fileName},
+		#{storedName}, #{fileUri})
+		<selectKey keyProperty="id" resultType="int" order="AFTER">
+			SELECT LAST_INSERT_ID() AS id
+		</selectKey>
 	</insert>
+	<select id="readFileById" parameterType="int" resultMap="fileResultMap">
+		SELECT * FROM files WHERE id = #{id}
+	</select>
 	<select id="readFileListByGroupId" parameterType="int" resultMap="fileResultMap">
 		SELECT * FROM files WHERE group_id = #{groupId}
 	</select>
@@ -29,7 +35,20 @@
 	<select id="readFileCountByUserId" parameterType="int" resultType="int">
 		SELECT COUNT(*) FROM files WHERE user_id = #{userId}
 	</select>
-	<select id="readFileById" parameterType="int" resultMap="fileResultMap">
-		SELECT * FROM files WHERE id = #{id}
+	<select id="readFileListByGroupIdAndDirectoryId" parameterType="map" resultMap="fileResultMap">
+		SELECT * FROM files WHERE group_id = #{groupId} AND
+		directory_id = #{directoryId}
 	</select>
+	<select id="readFileByGroupIdAndFileName" parameterType="map" resultMap="fileResultMap">
+		SELECT * FROM files WHERE group_id = #{groupId} AND
+		file_name =
+		#{fileName}
+	</select>
+	<update id="updateFile" parameterType="map">
+		UPDATE files SET group_id = #{groupId}, directory_id = #{directoryId}, file_name = #{fileName},
+		stored_name = #{storedName}, file_uri = #{fileUri} WHERE id = #{id}
+	</update>
+	<delete id="deleteFileById" parameterType="int">
+		DELETE FROM files WHERE id = #{id}
+	</delete>
 </mapper>

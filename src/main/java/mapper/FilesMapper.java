@@ -10,6 +10,8 @@ import dto.FilesDTO;
 public interface FilesMapper {
 	public void createFile(FilesDTO fileDTO);
 
+	public FilesDTO readFileById(int id);
+
 	public List<FilesDTO> readFileListByGroupId(int groupId);
 
 	public int readFileCountByGroupId(int groupId);
@@ -17,6 +19,12 @@ public interface FilesMapper {
 	public List<FilesDTO> readFileListByUserId(int userId);
 
 	public int readFileCountByUserId(int userId);
-
-	public FilesDTO readFileById(int id);
+	
+	public List<FilesDTO> readFileListByGroupIdAndDirectoryId(int groupId, int directoryId);
+	
+	public FilesDTO readFileByGroupIdAndFileName(int groupId, String fileName);
+	
+	public void updateFile(FilesDTO fileDTO);
+	
+	public void deleteFileById(int id);
 }

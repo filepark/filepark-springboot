@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.DirectoryMapper">
+	<resultMap id="directoryResultMap" type="DirectoryDTO">
+		<id property="id" column="id" />
+		<result property="userId" column="user_id" />
+		<result property="groupId" column="group_id" />
+		<result property="directoryId" column="directory_id" />
+		<result property="directoryName" column="directory_name" />
+		<result property="isRoot" column="is_root" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+	</resultMap>
+	<insert id="createDirectory" parameterType="map">
+		INSERT INTO directory (user_id, group_id, directory_id, directory_name) VALUES (#{userId}, #{groupId}, #{directoryId}, #{directoryName})
+		<selectKey keyProperty="id" resultType="int" order="AFTER">
+			SELECT LAST_INSERT_ID() AS id
+		</selectKey>
+	</insert>
+	<select id="readRootDirectoryByGroupId" parameterType="int" resultMap="directoryResultMap">
+		SELECT * FROM directory WHERE group_id = #{groupId} AND is_root = 1
+	</select>
+	<select id="readDirectoryById" parameterType="int" resultMap="directoryResultMap">
+		SELECT * FROM directory WHERE id = #{id}
+	</select>
+	<select id="readDirectoryByGroupIdAndDirectoryIdAndDirectoryName" parameterType="map" resultMap="directoryResultMap">
+		SELECT * FROM directory WHERE group_id =
+		#{groupId} AND directory_id = #{directoryId} AND
+		directory_name = #{directoryName}
+	</select>
+	<select id="readDirectoryListByGroupIdAndDirectoryId" parameterType="map" resultMap="directoryResultMap">
+		SELECT * FROM directory WHERE group_id = #{groupId} AND
+		directory_id = #{directoryId}
+	</select>
+	<update id="updateDirectoryById" parameterType="map">
+		UPDATE directory SETdirectory_name = #{directoryName}, updated_at = NOW() WHERE id = #{id}
+	</update>
+</mapper>

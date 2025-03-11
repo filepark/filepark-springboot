@@ -2,58 +2,788 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-<link rel="stylesheet" href="/styles/index.css">
-<title>File Park - Group</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="/styles/master.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <title>File Park - Group</title>
+    <script>
+        let uploadFile = null;
+        let currentPath = decodeURI("[[${currentPath}]]");
+        let checkedFileList = [];
+        let checkedFileItem = {};
 
+        function downloadFiles() {
+            checkedFileList.forEach(async (item) => {
+                const response = await fetch(item.file);
+                const resBlob = await response.blob();
+                const blobURL = URL.createObjectURL(resBlob);
+                const link = document.createElement("a");
+                link.href = blobURL;
+                link.download = item.name;
+                link.style.display = "none";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
+
+        async function downloadFile() {
+            if (checkedFileItem === null) {
+                return;
+            }
+
+            const response = await fetch(checkedFileItem.file);
+            const resBlob = await response.blob();
+            const blobURL = URL.createObjectURL(resBlob);
+            const link = document.createElement("a");
+            link.href = blobURL;
+            link.download = checkedFileItem.name;
+            link.style.display = "none";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function deleteFiles() {
+            const deleteList = checkedFileList.map((item) => item.id);
+            console.log(deleteList);
+            const form = new FormData();
+            form.append('fileIds', deleteList);
+            console.log(form.get('fileIds'));
+            $.ajax({
+                url: '/api/group' + '/[[${hashedId}]]' + '/file',
+                data: form,
+                processData: false,
+                contentType: false,
+                method: 'DELETE',
+                success: function (data) {
+                    fetchFiles();
+                }
+            });
+        }
+
+        function deleteFile() {
+            console.log(checkedFileItem.id);
+            if (checkedFileItem === null) {
+                return;
+            }
+            if (checkedFileItem.type === 'directory') {
+                $.ajax({
+                    url: '/api/group' + '/[[${hashedId}]]' + '/directory/' + checkedFileItem.id,
+                    method: 'DELETE',
+                    success: function (data) {
+                        fetchFiles();
+                    }
+                });
+            } else {
+                $.ajax({
+                    url: '/api/group' + '/[[${hashedId}]]' + '/file/' + checkedFileItem.id,
+                    method: 'DELETE',
+                    success: function (data) {
+                        fetchFiles();
+                    }
+                });
+            }
+        }
+
+        function currentPathShow() {
+            const hashedId = "[[${hashedId}]]";
+            const path = currentPath.split('/');
+            let pathStr = `<li><a href="/groups/${hashedId}/" class="link link-hover" style="font-size: 1.1rem;">/</a></li>`;
+            path.forEach((dir, idx) => {
+                const pathLink = path.slice(0, idx + 1).join('/');
+                if (idx === (path.length - 1)) {
+                    pathStr += `<li><span class="link link-hover" style="font-size: 1.1rem; font-weight: 600; display: inline-block; max-width: 80px; overflow: hidden; text-overflow:ellipsis; white-space: nowrap;">${dir}</span></li>`;
+                    return;
+                }
+                pathStr += `<li><a href="/groups/${hashedId}/${pathLink}" class="link link-hover" style="font-size: 1.1rem; max-width: 80px; display: inline-block; overflow: hidden; text-overflow:ellipsis; white-space: nowrap;">${dir}</a></li>`;
+            });
+            if (path[0] === '') {
+                pathStr = `<li><a href="/groups/${hashedId}/" class="link link-hover" style="font-size: 1.1rem; font-weight: 600;">/</a></li>`;
+            }
+            $('#current-path-show').html(`<ul>${pathStr}</ul>`);
+        }
+
+        function fileTypeImage(type) {
+            switch (type) {
+                case 'txt':
+                    return '/images/text.png';
+                case 'pdf':
+                    return '/images/pdf.png';
+                case 'zip':
+                case 'tar':
+                case 'gz':
+                case 'bz2':
+                case '7z':
+                    return '/images/zip.png';
+                case 'mp3':
+                case 'wav':
+                case 'flac':
+                case 'ogg':
+                case 'm4a':
+                case 'wma':
+                case 'aac':
+                    return '/images/audio.png';
+                case 'mp4':
+                case 'avi':
+                case 'mkv':
+                case 'mov':
+                case 'flv':
+                case 'wmv':
+                    return '/images/video.png';
+                case 'exe':
+                    return '/images/exe.png';
+                default:
+                    return '/images/file.png';
+            }
+        }
+
+        function changeUploadFile(file) {
+            uploadFile = file;
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $('#upload-preview').attr('src', e.target.result);
+                const fileType = e.target.result.split(';')[0].split('/')[0].split(':')[1];
+                if (fileType !== 'image') {
+                    const extension = uploadFile.name.split('.').pop();
+                    $('#upload-preview').attr('src', fileTypeImage(extension));
+                }
+                $('#upload-filename').val(uploadFile.name);
+                $('#upload-error-message').text('');
+                $('#upload-form').val(true);
+            }
+            reader.readAsDataURL(uploadFile);
+        }
+
+        function handleItemClick(fileId) {
+            $.ajax({
+                url: '/api/group' + '/[[${hashedId}]]' + '/file/' + fileId,
+                method: 'GET',
+                success: function (data) {
+                    const imageExtension = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
+                    const extension = data.file.fileUri.split('.').pop();
+                    let imageSrc = data.file.fileUri;
+                    if (!imageExtension.includes(extension)) {
+                        imageSrc = fileTypeImage(extension);
+                    }
+                    $('#item-name').text(data.file.fileName);
+                    $('#item-image').attr('src', imageSrc);
+                    checkedFileItem = { name: data.file.fileName, file: data.file.fileUri };
+                    itemModal.showModal();
+                }
+            });
+            itemModal.showModal();
+        }
+
+        function handleItemCheck(e) {
+            if (e.target.checked) {
+                checkedFileList.push({ id: e.target.getAttribute('data-file-id'), type: e.target.getAttribute('data-file-type'), name: e.target.getAttribute('data-file-name'), file: e.target.getAttribute('data-file-src') });
+            } else {
+                checkedFileList = checkedFileList.filter((item) => item.file !== e.target.getAttribute('data-file-src'));
+            }
+            if (checkedFileList.length > 0) {
+                $('#download-files').show();
+                $('#delete-files').show();
+                $('#new-folder').hide();
+                $('#select-count').text(checkedFileList.length);
+                $('#select-count-show').show();
+            } else {
+                $('#download-files').hide();
+                $('#delete-files').hide();
+                $('#new-folder').show();
+                $('#select-count-show').hide();
+            }
+            const fileItems = document.querySelectorAll('.file-item-select');
+            if (fileItems.length === checkedFileList.length) {
+                $('#select-all-files').prop('checked', true);
+            } else {
+                $('#select-all-files').prop('checked', false);
+            }
+        }
+
+        function handleCheckAllItems() {
+            const fileItems = document.querySelectorAll('.file-item-select');
+            checkedFileList = [];
+            fileItems.forEach((item) => {
+                item.checked = true;
+                checkedFileList.push({ id: item.getAttribute('data-file-id'), type: item.getAttribute('data-file-type'), name: item.getAttribute('data-file-name'), file: item.getAttribute('data-file-src') });
+            });
+            $('#select-all-files').prop('checked', true);
+            $('#download-files').show();
+            $('#delete-files').show();
+            $('#new-folder').hide();
+            $('#select-count').text(checkedFileList.length);
+            $('#select-count-show').show();
+        }
+
+        function handleToggleCheckAllItems(e) {
+            const fileItems = document.querySelectorAll('.file-item-select');
+            checkedFileList = [];
+            fileItems.forEach((item) => {
+                item.checked = e.target.checked;
+                if (e.target.checked) {
+                    checkedFileList.push({ id: item.getAttribute('data-file-id'), type: item.getAttribute('data-file-type'), name: item.getAttribute('data-file-name'), file: item.getAttribute('data-file-src') });
+                }
+            });
+            if (checkedFileList.length > 0) {
+                $('#download-files').show();
+                $('#delete-files').show();
+                $('#new-folder').hide();
+                $('#select-count').text(checkedFileList.length);
+                $('#select-count-show').show();
+            } else {
+                $('#download-files').hide();
+                $('#delete-files').hide();
+                $('#new-folder').show();
+                $('#select-count-show').hide();
+            }
+        }
+
+        function handleClickRenameItem() {
+            $('#rename-input').val(checkedFileItem.name);
+            renameModal.showModal();
+        }
+
+        function fetchUsers() {
+            const apiUrl = '/api/group' + '/[[${hashedId}]]' + '/user';
+            $.ajax({
+                url: apiUrl,
+                method: 'GET',
+                success: function (data) {
+                    const participantsList = $('#participants-list');
+                    participantsList.empty();
+                    data.users.forEach((user, idx) => {
+                        if (idx > 3) {
+                            participantsList.append(`
+                                <div class="tooltip" data-tip="외에 ${data.users.length - 4}명">
+                                    <div class="avatar" tabindex="0" role="button" style="cursor: pointer;">
+                                        <div class="rounded-full" style="width: 40px;">
+                                            <img src="${user.profileImage}" oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+                                        </div>
+                                    </div>
+                                </div>
+                                `);
+                            return;
+                        }
+                        participantsList.append(`
+                            <div class="tooltip" data-tip="${user.name}">
+                                <div class="avatar" tabindex="0" role="button" style="cursor: pointer;">
+                                    <div class="rounded-full" style="width: 40px;">
+                                        <img src="${user.profileImage}" oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                }
+            });
+        }
+
+        function fetchFiles() {
+            const apiUrl = '/api/group' + '/[[${hashedId}]]' + '/file?directoryStr=' + '[[${directoryId}]]';
+            $.ajax({
+                url: apiUrl,
+                method: 'GET',
+                success: function (data) {
+                    const hashedId = "[[${hashedId}]]";
+                    const optimizerPrefix = "[[${optimizerPrefix}]]";
+                    const fileList = $('#file-list');
+                    fileList.empty();
+                    data.directories.forEach((directory) => {
+                        if (directory.directoryName.trim() === '') {
+                            return;
+                        }
+                        const pathLink = window.location.href + (currentPath === '' ? '' : '/') + directory.directoryName;
+                        fileList.append(`
+                            <li style="position: relative;">
+                                <div class="directory-item" style="position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; width: 170px; height: 170px; padding: 15px; background-color: aqua; border-radius: 10px; cursor: pointer;" onclick="window.location.href='${pathLink}'" data-file-type="directory" data-file-id="${directory.id}" data-file-name="${directory.directoryName}" data-link-url="${pathLink}" onmouseover="this.style.border='1px solid blue'" onmouseout="this.style.border='none'">
+                                    <span class="directory-item" style="display: inline-block; width: 70px; height: 70px; background-image: url(/images/folder.png); background-size: cover;" data-file-type="directory" data-file-id="${directory.id}" data-file-name="${directory.directoryName}" data-link-url="${pathLink}"></span>
+                                    <span class="directory-item" style="width: 80%; overflow: hidden; text-overflow:ellipsis; white-space: nowrap; text-align: center;" data-file-type="directory" data-file-id="${directory.id}" data-link-url="${pathLink}">${directory.directoryName}</span>
+                                </div>
+                            </li>
+                        `);
+                    });
+                    data.files.forEach((file) => {
+                        const imageExtension = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
+                        const extension = file.storedName.split('.').pop();
+                        let imageSrc = optimizerPrefix + file.storedName + '?type=f&w=100&h=100&faceopt=true';
+                        if (!imageExtension.includes(extension)) {
+                            imageSrc = fileTypeImage(extension);
+                        }
+                        fileList.append(`
+                            <li style="position: relative;">
+                                <input type="checkbox" class="checkbox file-item file-item-select" style="position: absolute; top: 5px; left: 5px; cursor: default; z-index: 1;" onchange="handleItemCheck(event)" data-file-type="file" data-file-id="${file.id}" data-file-name="${file.fileName}" data-file-src="${file.fileUri}" />
+                                <div class="file-item" style="position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; width: 170px; height: 170px; padding: 15px; background-color: aqua; border-radius: 10px; cursor: pointer;" onclick="handleItemClick(${file.id})" data-file-type="file" data-file-id="${file.id}" data-file-name="${file.fileName}" data-file-src="${file.fileUri}" onmouseover="this.style.border='1px solid blue'" onmouseout="this.style.border='none'">
+                                    <img class="file-item" src="${imageSrc}" alt="" style="width: 100px; height: 100px;" data-file-type="file" data-file-id="${file.id}" data-file-name="${file.fileName}" data-file-src="${file.fileUri}" oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+                                    <span class="file-item" style="width: 80%; overflow: hidden; text-overflow:ellipsis; white-space: nowrap; text-align: center;" data-file-type="file" data-file-id="${file.id}" data-file-name="${file.fileName}" data-file-src="${file.fileUri}">${file.fileName}</span>
+                                </div>
+                            </li>
+                        `);
+
+                    });
+                }
+            });
+        }
+
+        $(() => {
+            fetchUsers();
+            fetchFiles();
+            setInterval(fetchUsers, 10000);
+            currentPathShow();
+            $('#upload-form').val(false);
+
+            $('#file-content').on('dragover', function (e) {
+                e.preventDefault();
+                $('#file-content-upload-label').show();
+            });
+
+            $('#file-content-upload-label').on('dragleave', function (e) {
+                e.preventDefault();
+                $('#file-content-upload-label').hide();
+            });
+
+            $('#file-content-upload-label').on('drop', function (e) {
+                e.preventDefault();
+                console.log(e.originalEvent.dataTransfer.files);
+                for (let i = 0; i < e.originalEvent.dataTransfer.files.length; i++) {
+                    const file = e.originalEvent.dataTransfer.files[i];
+                    const form = new FormData();
+                    form.append('fileName', file.name);
+                    form.append('path', currentPath);
+                    form.append('file', file);
+                    $.ajax({
+                        url: '/api/group' + '/[[${hashedId}]]' + '/file',
+                        type: 'POST',
+                        data: form,
+                        processData: false,
+                        contentType: false,
+                        success: (response) => {
+                            fetchFiles();
+                        }
+                    });
+                }
+                $('#file-content-upload-label').hide();
+            });
+
+            $('#upload-file-label').hover(function () {
+                $(this).text('클릭해서 파일 업로드');
+                $(this).css({
+                    "background-color": "rgba(200, 200, 200, 0.5)",
+                    "opacity": "1"
+                });
+            }, function () {
+                $(this).css({
+                    "background-color": "rgba(200, 200, 200, 0.5)",
+                    "opacity": "0"
+                });
+            });
+
+            $('#upload-file-label').on('dragover', function (e) {
+                e.preventDefault();
+                $(this).text('드래그&드롭해서 파일 업로드');
+                $(this).css({
+                    "background-color": "rgba(200, 200, 200, 0.5)",
+                    "opacity": "1"
+                });
+            });
+
+            $('#upload-file-label').on('dragleave', function (e) {
+                e.preventDefault();
+                $(this).css({
+                    "background-color": "rgba(200, 200, 200, 0.5)",
+                    "opacity": "0"
+                });
+            });
+
+            $('#upload-file-label').on('drop', function (e) {
+                e.preventDefault();
+                changeUploadFile(e.originalEvent.dataTransfer.files[0]);
+                $(this).css({
+                    "background-color": "rgba(200, 200, 200, 0.5)",
+                    "opacity": "0"
+                });
+            });
+
+            $('#upload-file').change(function (e) {
+                changeUploadFile(e.target.files[0]);
+            });
+
+            $('#upload-form').submit((e) => {
+                e.preventDefault();
+                const isFileSelected = $('#upload-form').val();
+                if (!isFileSelected) {
+                    $('#upload-error-message').text('파일을 선택해주세요.');
+                    return;
+                }
+                const fileName = $('#upload-filename').val();
+                const form = new FormData();
+                form.append('fileName', fileName);
+                form.append('path', currentPath);
+                form.append('file', uploadFile);
+                $.ajax({
+                    url: '/api/group' + '/[[${hashedId}]]' + '/file',
+                    type: 'POST',
+                    data: form,
+                    processData: false,
+                    contentType: false,
+                    success: (response) => {
+                        $('#upload-error-message').text('');
+                        uploadModal.close();
+                        $('#upload-preview').attr('src', '/images/white-image.png');
+                        $('#upload-filename').val('');
+                        fetchFiles();
+                    },
+                    error: (error) => {
+                        $('#upload-error-message').text('파일 업로드에 실패했습니다. 다시 시도해주세요.');
+                        if (error.responseJSON.status === 'fail') {
+                            $('#upload-error-message').text(error.responseJSON.message);
+                        }
+                    }
+                });
+            });
+
+            $('#create-folder-form').submit((e) => {
+                e.preventDefault();
+                const folderName = $('#folder-name').val();
+                if (folderName.trim() === '') {
+                    $('#create-folder-error-message').text('폴더 이름을 입력해주세요.');
+                    return;
+                }
+
+                const form = new FormData();
+                form.append('directoryName', folderName.trim());
+                form.append('path', currentPath);
+                $.ajax({
+                    url: '/api/group' + '/[[${hashedId}]]' + '/directory',
+                    type: 'POST',
+                    data: form,
+                    processData: false,
+                    contentType: false,
+                    success: (response) => {
+                        $('#create-folder-error-message').text('');
+                        createFolderModal.close();
+                        $('#folder-name').val('');
+                        fetchFiles();
+                    },
+                    error: (error) => {
+                        $('#create-folder-error-message').text('폴더 생성에 실패했습니다. 다시 시도해주세요.');
+                        if (error.responseJSON.status === 'fail') {
+                            $('#create-folder-error-message').text(error.responseJSON.message);
+                        }
+                    }
+                });
+            });
+
+            $('#rename-form').submit((e) => {
+                e.preventDefault();
+                const fileName = $('#rename-input').val();
+                if (fileName.trim() === '') {
+                    $('#rename-error-message').text('이름을 입력해주세요.');
+                    return;
+                }
+
+                const form = new FormData();
+                form.append('fileName', fileName.trim());
+                if (checkedFileItem.type === 'directory') {
+                    $.ajax({
+                        url: '/api/group' + '/[[${hashedId}]]' + '/directory/' + checkedFileItem.id,
+                        type: 'PUT',
+                        data: form,
+                        processData: false,
+                        contentType: false,
+                        success: (response) => {
+                            $('#rename-error-message').text('');
+                            renameModal.close();
+                            $('#rename-input').val('');
+                            fetchFiles();
+                        },
+                        error: (error) => {
+                            $('#rename-error-message').text('이름 변경에 실패했습니다. 다시 시도해주세요.');
+                            if (error.responseJSON.status === 'fail') {
+                                $('#rename-error-message').text(error.responseJSON.message);
+                            }
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        url: '/api/group' + '/[[${hashedId}]]' + '/file/' + checkedFileItem.id,
+                        type: 'PUT',
+                        data: form,
+                        processData: false,
+                        contentType: false,
+                        success: (response) => {
+                            $('#rename-error-message').text('');
+                            renameModal.close();
+                            $('#rename-input').val('');
+                            fetchFiles();
+                        },
+                        error: (error) => {
+                            $('#rename-error-message').text('이름 변경에 실패했습니다. 다시 시도해주세요.');
+                            if (error.responseJSON.status === 'fail') {
+                                $('#rename-error-message').text(error.responseJSON.message);
+                            }
+                        }
+                    });
+                }
+            });
+
+            $('#create-comment-form').submit((e) => {
+                e.preventDefault();
+                const comment = $('#comment-input').val();
+                if (comment.trim() === '') {
+                    $('#comment-error-message').text('댓글을 입력해주세요.');
+                    return;
+                }
+
+                const form = new FormData();
+                form.append('comment', comment.trim());
+                $.ajax({
+                    url: '/api/group' + '/[[${hashedId}]]' + '/file/' + checkedFileItem.id + '/comment',
+                    type: 'POST',
+                    data: form,
+                    processData: false,
+                    contentType: false,
+                    success: (response) => {
+                        $('#comment-error-message').text('');
+                        $('#comment-input').val('');
+                        fetchComments();
+                    },
+                    error: (error) => {
+                        $('#comment-error-message').text('댓글 작성에 실패했습니다. 다시 시도해주세요.');
+                        if (error.responseJSON.status === 'fail') {
+                            $('#comment-error-message').text(error.responseJSON.message);
+                        }
+                    }
+                });
+            });
+        });
+
+        $(document).ready(function () {
+            $("#file-content").on("contextmenu", function (e) {
+                e.preventDefault();
+                console.log($(e.target));
+                checkedFileItem.id = $(e.target).attr("data-file-id");
+                checkedFileItem.type = $(e.target).attr("data-file-type");
+                checkedFileItem.name = $(e.target).attr("data-file-name");
+                checkedFileItem.file = $(e.target).attr("data-file-src");
+                console.log(checkedFileItem);
+                if ($(e.target).hasClass("file-item")) {
+                    let contextMenu = "";
+                    contextMenu += `<li><a onclick="handleItemClick(${checkedFileItem.id})">열기</a></li>`;
+                    contextMenu += `<li><a onclick="downloadFile()">다운로드</a></li>`;
+                    contextMenu += `<li><a onclick="deleteFile()">삭제</a></li>`;
+                    contextMenu += `<li><a onclick="handleClickRenameItem()">이름 바꾸기</a></li>`;
+                    contextMenu += `<li><a>상세정보</a></li>`;
+                    $("#contextmenu").html(contextMenu);
+                    $("#contextmenu").css({ top: e.pageY + "px", left: e.pageX + "px" }).fadeIn(200);
+                } else if ($(e.target).hasClass("directory-item")) {
+                    const linkUri = $(e.target).attr("data-link-url");
+                    let contextMenu = "";
+                    contextMenu += `<li><a href="${linkUri}">열기</a></li>`;
+                    contextMenu += `<li><a onclick="deleteFile()">삭제</a></li>`;
+                    contextMenu += `<li><a onclick="handleClickRenameItem()">이름 바꾸기</a></li>`;
+                    contextMenu += `<li><a>상세정보</a></li>`;
+                    $("#contextmenu").html(contextMenu);
+                    $("#contextmenu").css({ top: e.pageY + "px", left: e.pageX + "px" }).fadeIn(200);
+                } else {
+                    let contextMenu = "";
+                    contextMenu += "<li><a onclick='uploadModal.showModal()'>파일 업로드</a></li>";
+                    contextMenu += "<li><a onclick='createFolderModal.showModal()'>새 폴더</a></li>";
+                    contextMenu += "<li><a onclick='handleCheckAllItems()'>모두 선택</a></li>";
+                    contextMenu += "<li><a>상세정보</a></li>";
+                    $("#contextmenu").html(contextMenu);
+                    $("#contextmenu").css({ top: e.pageY + "px", left: e.pageX + "px" }).fadeIn(200);
+                }
+            });
+
+            $(document).on("click", function () {
+                $("#contextmenu").fadeOut(200);
+            });
+
+            $(document).on("keydown", function (e) {
+                if (e.key === "Escape") {
+                    $("#contextmenu").fadeOut(200);
+                }
+            });
+        });
+    </script>
 </head>
 
 <body>
     <header th:replace="~{/layouts/header :: header}"></header>
     <aside th:replace="~{/layouts/aside :: aside}"></aside>
     <aside th:replace="~{/layouts/chat :: chat}"></aside>
-	<p th:text="${groupId}"></p>
-    <main style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 600px);">
+    <main
+        style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 600px); height: calc(100vh - 80px);">
         <div style="display: flex; flex-direction: row-reverse;">
-            <div style="width: 200px; height: 100px;">
-                <p>그룹 참여자</p>
-                <div class="participants-list">
-                    <div class="tooltip" data-tip="hello">
-                        <div class="avatar" tabindex="0" role="button" style="cursor: pointer;">
-                            <div class="rounded-full" style="width: 50px;">
-                                <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                            </div>
+            <div style="height: 60px; display: flex; align-items: center; gap: 20px;">
+                <span style="white-space: nowrap;">그룹 참여자</span>
+                <div id="participants-list" style="display: flex; gap: 5px;"></div>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: column; background-color: aquamarine;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px; width: 100%; height: 80px;">
+                <div style="display: flex; gap: 50px; align-items: center;">
+                    <p style="font-size: 1.2rem; font-weight: 600;">파일 목록</p>
+                    <div class="join">
+                        <label class="input join-item" style="width: 400px;">
+                            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
+                                    stroke="currentColor">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.3-4.3"></path>
+                                </g>
+                            </svg>
+                            <input type="search" required placeholder="파일명 검색" />
+                        </label>
+                        <select class="select join-item" style="width: 110px;">
+                            <option selected>최신순</option>
+                            <option>오래된 순</option>
+                        </select>
+                        <div class="indicator">
+                            <button class="btn join-item">검색</button>
                         </div>
-                      </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <p id="select-count-show" style="display: none;">
+                        <span id="select-count" style="color: blue;"></span>
+                        <span>개 선택</span>
+                    </p>
+                    <div
+                        style="display: flex; justify-content: center; align-items: center; border-radius: 5px; width: 40px; height: 40px; background-color: white;">
+                        <input id="select-all-files" type="checkbox" class="checkbox checkbox-primary"
+                            onchange="handleToggleCheckAllItems(event)" />
+                    </div>
+                    <button class="btn btn-accent" onclick="uploadModal.showModal()">파일 업로드</button>
+                    <button id="new-folder" class="btn" onclick="createFolderModal.showModal()">새 폴더</button>
+                    <button id="download-files" class="btn btn-primary" style="display: none;"
+                        onclick="downloadFiles()">다운로드</button>
+                    <button id="delete-files" class="btn btn-error" style="display: none;"
+                        onclick="deleteFiles()">삭제</button>
                 </div>
             </div>
-        </div>
-        <div>
-            <div>
-                <p>파일 목록</p>
-                <button>파일 업로드</button>
+            <div style="width: 100%; height: 60px; padding: 0 20px; background-color: burlywood;">
+                <div id="current-path-show" class="breadcrumbs" style="max-width: 100%;"></div>
             </div>
-            <div class="files-contents">
-                <div class="files-list"></div>
+            <div id="file-content"
+                style="position: relative; width: 100%; height: calc(100vh - 320px); padding: 20px; background-color: bisque;">
+                <input id="file-content-upload" type="file" style="display: none;">
+                <div id="file-content-upload-label"
+                    style="position: absolute; width: inherit; height: inherit; top: 0; left: 0; display: none;">
+                    <div
+                        style="position: absolute; width: inherit; height: inherit; top: 0; left: 0; border: 4px solid blue; background-color: rgb(202, 202, 202); opacity: 0.5; z-index: 1;">
+                    </div>
+                    <div
+                        style="position: absolute; width: inherit; height: inherit; top: 0; left: 0; display: flex; justify-content: center; align-items: center; font-size: 1.7rem; z-index: 2;">
+                        파일을 여기에 끌어다 놓으면 업로드가 시작됩니다.
+                    </div>
+                </div>
+                <ul id="file-list" style="display: flex; flex-wrap: wrap; gap: 10px;"></ul>
             </div>
         </div>
-    <button class="btn" onclick="itemModal.showModal()">open modal</button>
     </main>
-    <dialog id="itemModal" class="modal">
+    <dialog id="createFolderModal" class="modal">
         <div class="modal-box">
-            <h3 class="text-lg font-bold">Hello!</h3>
-            <p class="py-4">Press ESC key or click the button below to close</p>
+            <h3 style="font-size: 1.4rem; font-weight: 600;">새 폴더 만들기</h3>
+            <div class="divider"></div>
+            <form id="create-folder-form">
+                <div style="padding: 10px 0;">
+                    <label for="folder-name">폴더 이름</label>
+                    <input id="folder-name" type="text" class="input" placeholder="폴더 이름을 입력하세요." required
+                        autocomplete="off">
+                </div>
+                <p id="create-folder-error-message" style="color: red;"></p>
+                <div class="modal-action">
+                    <button type="submit" class="btn btn-success">폴더 생성</button>
+                    <button type="button" class="btn" onclick="createFolderModal.close()">닫기</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+    <dialog id="uploadModal" class="modal">
+        <div class="modal-box" style="min-width: 800px;">
+            <h3 style="font-size: 1.4rem; font-weight: 600;">파일 업로드</h3>
+            <div class="divider"></div>
+            <form id="upload-form" enctype="multipart/form-data">
+                <div style="padding: 10px 0; display: flex; width: 100%; justify-content: center;">
+                    <div
+                        style="position: relative; width: 500px; height: 500px; border: 2px dashed gray; border-radius: 15px; overflow: hidden;">
+                        <img id="upload-preview" src="/images/white-image.png" oncontextmenu="return false"
+                            ondragstart="return false" onselectstart="return false"
+                            style="width: 0px; height: 0px; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover; margin: auto;" />
+                        <input id="upload-file" type="file" style="display: none;">
+                        <label id="upload-file-label" for="upload-file"
+                            style="position: absolute; display: flex; justify-content: center; align-items: center; top: 0; width: inherit; height: inherit; cursor: pointer; font-size: 1.3rem; opacity: 0;"></label>
+                    </div>
+                </div>
+                <div
+                    style="padding: 10px 0; display: flex; width: 100%; justify-content: center; align-items: center; gap: 10px;">
+                    <label for="upload-filename" style="display: block;">파일 이름(Optional)</label>
+                    <input id="upload-filename" type="text" class="input" placeholder="수동으로 파일명 설정" autocomplete="off"
+                        required>
+                </div>
+                <p id="upload-error-message" style="color: red;"></p>
+                <div class="modal-action">
+                    <button type="submit" class="btn btn-success">업로드</button>
+                    <button type="button" class="btn" onclick="uploadModal.close()">닫기</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+    <dialog id="renameModal" class="modal">
+        <div class="modal-box">
+            <h3 style="font-size: 1.2rem; font-weight: 600;">이름 바꾸기</h3>
+            <div class="divider"></div>
+            <form id="rename-form">
+                <input id="rename-input" type="text" class="input" style="width: 300px;" autocomplete="off">
+                <p id="rename-error-message" style="color: red;"></p>
+                <div class="modal-action">
+                    <button class="btn btn-primary" type="submit" onclick="updateFile()">확인</button>
+                    <button class="btn" type="button" onclick="renameModal.close()">닫기</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+    <dialog id="detailModal" class="modal">
+        <div class="modal-box">
+            <h3 id="item-name-detail" style="font-size: 1.2rem; font-weight: 600;"></h3>
+            <div class="divider"></div>
+            <input type="text" class="input" style="width: 300px;" autocomplete="off">
             <div class="modal-action">
-                <form method="dialog">
-                    <button class="btn">닫기</button>
-                </form>
+                <button class="btn" onclick="detailModal.close()">닫기</button>
             </div>
         </div>
     </dialog>
+    <dialog id="itemModal" class="modal">
+        <div class="modal-box" style="min-width: 50%;">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 id="item-name" style="font-size: 1.2rem; font-weight: 600;"></h3>
+            <figure style="display: flex; justify-content: center; align-items: center; margin: 20px 0;">
+                <img id="item-image" src="" alt="">
+            </figure>
+            <div class="modal-action">
+                <button class="btn btn-primary" onclick="downloadFile()">다운로드</button>
+                <button class="btn" onclick="itemModal.close()">닫기</button>
+            </div>
+            <div class="divider"></div>
+            <form id="create-comment-form">
+                <input type="text" class="input" style="width: 300px;" placeholder="댓글을 입력하세요." autocomplete="off">
+                <button type="submit" class="btn btn-soft">전송</button>
+            </form>
+        </div>
+    </dialog>
+    <ul id="contextmenu" class="menu bg-base-200 rounded-box w-56"
+        style="display: none; position: absolute; width: 200px; margin: 0; box-shadow: 0 15px 35px rgba(50,50,90,0.1), 0 5px 15px rgba(0,0,0,0.07); overflow: hidden; z-index: 9999;">
+    </ul>
 </body>
 
 </html>

@@ -4,6 +4,7 @@
 	<resultMap id="groupResultMap" type="GroupsDTO">
 		<id property="id" column="id" />
 		<result property="userId" column="user_id" />
+		<result property="hashedId" column="hashed_id" />
 		<result property="name" column="name" />
 		<result property="description" column="description" />
 		<result property="maxUser" column="max_user" />
@@ -11,13 +12,15 @@
 		<result property="updatedAt" column="updated_at" />
 	</resultMap>
 	<insert id="createGroup" parameterType="map">
-		INSERT INTO `groups` (user_id, name, description, max_user) VALUES (#{userId}, #{name}, #{description}, #{maxUser}
+		INSERT INTO `groups` (user_id, hashed_id, name, description, max_user) VALUES (#{userId}, #{hashedId}, #{name}, #{description}, #{maxUser})
+		<selectKey keyProperty="id" resultType="int" order="AFTER">
+			SELECT LAST_INSERT_ID() AS id
+		</selectKey>
 	</insert>
-	<select id="readGroupById" parameterType="int"
-		resultMap="groupResultMap">
+	<select id="readGroupById" parameterType="int" resultMap="groupResultMap">
 		SELECT * FROM `groups` WHERE id = #{id}
 	</select>
-<!--	<select id="readGroupAndHostById">-->
-<!--		select g.id, g.hashed_id, g.user_id, g.name, g.description, g.max_user, g.created_at, g.updated_at, u.profileImage-->
-<!--	</select>-->
+	<select id="readGroupByHashedId" parameterType="String">
+		SELECT * FROM `groups` WHERE hashed_id = #{hashedId}
+	</select>
 </mapper>
