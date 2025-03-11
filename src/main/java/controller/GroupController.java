@@ -21,10 +21,8 @@ import dto.JunctionUsersGroupsDTO;
 import dto.UsersDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import service.DirectoryService;
-import service.GroupsService;
-import service.JunctionUsersGroupsService;
-import service.UsersService;
+import org.springframework.web.multipart.MultipartFile;
+import service.*;
 
 @RestController
 @RequestMapping("/api/group")
@@ -34,6 +32,7 @@ public class GroupController {
 	final UsersService usersService;
 	final JunctionUsersGroupsService junctionUsersGroupsService;
 	final DirectoryService directoryService;
+	private final ObjectStorageService objectStorageService;
 
 	@GetMapping("/invite")
 	public ResponseEntity<Object> getInvite(@RequestParam(name = "code") String hashedId, HttpSession session) {
@@ -157,11 +156,12 @@ public class GroupController {
 		return groupsDTO;
 	}
 
-	@GetMapping("/{groupId}/update")
+	@PostMapping("/{groupId}/update")
 	public ResponseEntity<Object> updateGroup(@PathVariable int groupId,
 											  @RequestParam String description,
 											  @RequestParam String name,
-											  @RequestParam int maxUser) {
+											  @RequestParam int maxUser,
+											  @RequestParam(value = "upload", required = false) MultipartFile upload) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		try {
 			GroupsDTO groupsDTO = new GroupsDTO();
@@ -169,6 +169,10 @@ public class GroupController {
 			groupsDTO.setDescription(description);
 			groupsDTO.setName(name);
 			groupsDTO.setMaxUser(maxUser);
+			if (upload != null) {
+				String filename = objectStorageService.uploadFile(objectStorageService.getBucketName(),"profile",upload);
+				groupsDTO.setGroupImage(objectStorageService.getEndPoint() + "/" + objectStorageService.getBucketName() + "/profile/" + filename);
+			}
 			groupsService.updateGroupById(groupsDTO);
 			response.put("status", "success");
 			response.put("groupId", groupsDTO.getId());
