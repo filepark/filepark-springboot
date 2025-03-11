@@ -49,8 +49,8 @@ public class Middleware extends OncePerRequestFilter {
 			}
 		}
 		
-		int userId = (int) userIdObject;
 		if (requestPath.startsWith("/group")) {
+			int userId = userIdObject == null ? 0 : (int) userIdObject;
 			if (requestPath.length() < 72) { // 8 + 64 = 72
 				response.sendRedirect("/error/404");
 				return;

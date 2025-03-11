@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import dto.DirectoryDTO;
 import dto.FilesDTO;
 import dto.GroupsDTO;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import service.DirectoryService;
@@ -38,7 +36,7 @@ public class FileController {
 	final ObjectStorageService objectStorageService;
 
 	@GetMapping
-	public ResponseEntity<Object> get(@PathVariable String hashedId, @RequestParam String directoryStr, HttpSession session) {
+	public ResponseEntity<Object> get(@PathVariable String hashedId, @RequestParam String directoryStr) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		int directoryId = 0;
 		try {
@@ -82,7 +80,7 @@ public class FileController {
 	}
 
 	@GetMapping("/{fileId}")
-	public ResponseEntity<Object> get(@PathVariable String hashedId, @PathVariable int fileId, HttpSession session) {
+	public ResponseEntity<Object> get(@PathVariable String hashedId, @PathVariable int fileId) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		GroupsDTO group = groupsService.readGroupByHashedId(hashedId);
 		if (group == null) {
@@ -104,10 +102,9 @@ public class FileController {
 		return new ResponseEntity<Object>(response, HttpStatus.OK);
 	}
 
-	@Transactional
 	@PostMapping
 	public ResponseEntity<Object> post(@PathVariable String hashedId, @RequestParam String fileName, @RequestParam String path,
-			@RequestParam MultipartFile file, HttpServletRequest request, HttpSession session) {
+			@RequestParam MultipartFile file, HttpSession session) {
 		int userId = (int) session.getAttribute("userId");
 		Map<String, Object> response = new HashMap<String, Object>();
 		GroupsDTO group = groupsService.readGroupByHashedId(hashedId);
@@ -154,8 +151,7 @@ public class FileController {
 	}
 
 	@PutMapping("/{fileId}")
-	public ResponseEntity<Object> put(@PathVariable String hashedId, @PathVariable int fileId, @RequestParam String fileName,
-			HttpServletRequest request, HttpSession session) {
+	public ResponseEntity<Object> put(@PathVariable String hashedId, @PathVariable int fileId, @RequestParam String fileName) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		GroupsDTO group = groupsService.readGroupByHashedId(hashedId);
 		if (group == null) {
@@ -186,7 +182,7 @@ public class FileController {
 	}
 
 	@DeleteMapping("/{fileId}")
-	public ResponseEntity<Object> delete(@PathVariable String hashedId, @PathVariable int fileId, HttpSession session) {
+	public ResponseEntity<Object> delete(@PathVariable String hashedId, @PathVariable int fileId) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		GroupsDTO group = groupsService.readGroupByHashedId(hashedId);
 		if (group == null) {
@@ -216,9 +212,8 @@ public class FileController {
 		}
 	}
 
-	@Transactional
 	@DeleteMapping
-	public ResponseEntity<Object> delete(@PathVariable String hashedId, @RequestParam List<Integer> fileIds, HttpSession session) {
+	public ResponseEntity<Object> delete(@PathVariable String hashedId, @RequestParam List<Integer> fileIds) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		GroupsDTO group = groupsService.readGroupByHashedId(hashedId);
 		if (group == null) {

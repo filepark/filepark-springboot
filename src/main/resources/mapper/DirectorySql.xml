@@ -35,4 +35,7 @@
 	<update id="updateDirectoryById" parameterType="map">
 		UPDATE directory SETdirectory_name = #{directoryName}, updated_at = NOW() WHERE id = #{id}
 	</update>
+	<delete id="deleteDirectoryById" parameterType="int">
+		DELETE FROM directory WHERE id = #{id}
+	</delete>
 </mapper>

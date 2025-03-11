@@ -51,4 +51,8 @@ public class DirectoryService {
 	public void updateDirectoryById(DirectoryDTO directoryDTO) {
 		directoryMapper.updateDirectoryById(directoryDTO);
 	}
+	
+	public void deleteDirectoryById(int id) {
+		directoryMapper.deleteDirectoryById(id);
+	}
 }
