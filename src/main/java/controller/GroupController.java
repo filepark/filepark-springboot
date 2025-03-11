@@ -1,11 +1,14 @@
 package controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,10 +22,8 @@ import dto.JunctionUsersGroupsDTO;
 import dto.UsersDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import service.DirectoryService;
-import service.GroupsService;
-import service.JunctionUsersGroupsService;
-import service.UsersService;
+import org.springframework.web.multipart.MultipartFile;
+import service.*;
 
 @RestController
 @RequestMapping("/api/group")
@@ -32,6 +33,7 @@ public class GroupController {
 	final UsersService usersService;
 	final JunctionUsersGroupsService junctionUsersGroupsService;
 	final DirectoryService directoryService;
+	private final ObjectStorageService objectStorageService;
 
 	@GetMapping("/invite")
 	public ResponseEntity<Object> getInvite(@RequestParam(name = "code") String hashedId, HttpSession session) {
@@ -113,6 +115,7 @@ public class GroupController {
 		}
 	}
 	
+	@Transactional
 	@PostMapping
 	public ResponseEntity<Object> post(@RequestParam String groupName, @RequestParam String description,
 			@RequestParam int maxUser, HttpSession session) {
@@ -131,17 +134,23 @@ public class GroupController {
 			junction.setUserId(userId);
 			junctionUsersGroupsService.createJunctionUsersGroups(junction);
 			
+			System.out.println("---");
 			DirectoryDTO directory = new DirectoryDTO();
 			directory.setUserId(userId);
 			directory.setGroupId(group.getId());
+			directory.setDirectoryName("");
+			directory.setIsRoot(1);
 			directoryService.createDirectory(directory);
+			System.out.println(directory);
+			directory.setDirectoryId(directory.getId());
 			directoryService.updateDirectoryById(directory);
 			
 			response.put("status", "success");
-			response.put("groupId", group.getId());
+			response.put("groupId", group.getHashedId());
 			response.put("message", "그룹 생성 성공");
 			return new ResponseEntity<Object>(response, HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			response.put("status", "fail");
 			response.put("message", "그룹 생성 실패");
 			return new ResponseEntity<Object>(response, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -153,5 +162,46 @@ public class GroupController {
 		GroupsDTO groupsDTO = groupsService.readGroupById(groupId);
 		groupsDTO.setHost(usersService.getUserById(groupsDTO.getUserId()));
 		return groupsDTO;
+	}
+
+	@PostMapping("/{groupId}/update")
+	public ResponseEntity<Object> updateGroup(@PathVariable int groupId,
+											  @RequestParam String description,
+											  @RequestParam String name,
+											  @RequestParam int maxUser,
+											  @RequestParam(value = "upload", required = false) MultipartFile upload) {
+		Map<String, Object> response = new HashMap<String, Object>();
+		try {
+			GroupsDTO groupsDTO = new GroupsDTO();
+			groupsDTO.setId(groupId);
+			groupsDTO.setDescription(description);
+			groupsDTO.setName(name);
+			groupsDTO.setMaxUser(maxUser);
+			if (upload != null) {
+				String filename = objectStorageService.uploadFile(objectStorageService.getBucketName(),"profile",upload);
+				groupsDTO.setGroupImage(objectStorageService.getEndPoint() + "/" + objectStorageService.getBucketName() + "/profile/" + filename);
+			}
+			groupsService.updateGroupById(groupsDTO);
+			response.put("status", "success");
+			response.put("groupId", groupsDTO.getId());
+			response.put("message", "그룹 변경 성공");
+			return new ResponseEntity<Object>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			response.put("status", "fail");
+			response.put("message", "그룹 변경 실패");
+			return new ResponseEntity<Object>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("{groupId}/deleteUser")
+	public ResponseEntity<Object> deleteUser(@PathVariable int groupId, @RequestParam String userIds) {
+		Map<String, Object> response = new HashMap<String, Object>();
+		List<Integer> userIdList = Arrays.stream(userIds.split(","))
+				.map(Integer::parseInt)
+				.collect(Collectors.toList());
+		// 사용자 삭제 처리
+		junctionUsersGroupsService.deleteUsersFromGroup(groupId, userIdList);
+
+		return new ResponseEntity<Object>(response, HttpStatus.OK);
 	}
 }

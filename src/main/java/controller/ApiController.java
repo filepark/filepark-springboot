@@ -51,6 +51,7 @@ public class ApiController {
 		if (upload != null) {
 			String filename = storageService.uploadFile(storageService.getBucketName(),"profile",upload);
 			dto.setProfileImage(filename);
+//			dto.setProfileImage(storageService.getEndPoint() + "/" + storageService.getBucketName() + "/profile/" + filename);
 		}
 		usersService.updateUserById(dto);
 		session.setAttribute("name",dto.getName());

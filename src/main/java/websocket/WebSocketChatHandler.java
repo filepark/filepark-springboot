@@ -143,7 +143,6 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 		}
 
 		for (WebSocketSession groupSession : groupSessions) {
-			System.out.println("이거 2번 실행되는거에요?");
 			if (groupSession.isOpen()) {
 				try {
 					groupSession.sendMessage(new TextMessage(chatMessage));

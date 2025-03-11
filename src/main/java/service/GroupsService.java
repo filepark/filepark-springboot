@@ -47,4 +47,8 @@ public class GroupsService {
 	public GroupsDTO readGroupByHashedId(String hashedId) {
 		return groupsMapper.readGroupByHashedId(hashedId);
 	}
+
+	public void updateGroupById(GroupsDTO group) {
+		groupsMapper.updateGroupById(group);
+	}
 }

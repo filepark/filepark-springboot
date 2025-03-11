@@ -16,6 +16,7 @@ import mapper.UsersMapper;
 public class JunctionUsersGroupsService {
 	JunctionUsersGroupsMapper junctionUsersGroupsMapper;
 	UsersMapper usersMapper;
+
 	public void createJunctionUsersGroups(JunctionUsersGroupsDTO junctionDTO) {
 		junctionUsersGroupsMapper.createJunctionUsersGroups(junctionDTO);
 	}
@@ -48,4 +49,11 @@ public class JunctionUsersGroupsService {
 	public List<Integer> readGroupsByUserId(int userId) {
 		return junctionUsersGroupsMapper.readGroupsByUserId(userId);
 	}
+
+	public void deleteUsersFromGroup(int groupId, List<Integer> userIds) {
+		for (int userId : userIds) {
+			junctionUsersGroupsMapper.deleteUserFromGroup(groupId, userId);
+		}
+	}
+
 }

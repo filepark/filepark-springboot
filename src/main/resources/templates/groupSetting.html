@@ -20,6 +20,18 @@
             cursor: pointer;
             filter: brightness(80%);
         }
+
+        .tooltip[data-tip]::before {
+            white-space: pre-line;
+        }
+
+        .grp-mem {
+            border-radius: 100px;
+            width: 60px;
+            height: 60px;
+            margin-left: 25px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -28,20 +40,36 @@
 <main style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 300px); height: calc(100vh - 80px);overflow: hidden;">
     <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; flex-direction: column; ">
         <div style="display: flex; position:relative; left: -150px;">
-            <input type="hidden" id="sessionUserId" th:value="${session.userId}">
-            <input type="hidden" th:value="${groupId}" id="sessionGroupId">
             <input type="file" id="update-profile" style="display: none;">
             <img src="" onerror="this.src='/images/noimage.png'" class="profile-img">
             <div style="display: flex; flex-direction: column; justify-content: center; margin-left: 50px;">
+                <p style="align-content: center; font-weight: bold; white-space: nowrap; margin-top: 50px;">그룹명</p>
                 <input type="text" placeholder="이름 입력" , class="input" id="groupset-name"
-                       style="border-radius: 5px; padding: 10px; height: 50px; width: 300px; margin-bottom: 10px;">
+                       style="border-radius: 5px; padding: 10px; height: 50px; width: 300px; margin-bottom: 10px; margin-top: 10px;">
                 <input type="text" class="input" readonly id="groupset-createdAt"
                        style="background-color: lightgrey; padding: 10px; border-radius: 5px; height: 50px; width: 300px; font-weight: bold;">
             </div>
         </div>
+        <p style="align-content: center; font-weight: bold; white-space: nowrap; position: relative; left: -400px; margin-top: 50px;">
+            그룹 소개글</p>
         <textarea th:type="text" class="textarea" th:text="${session.description}" id="groupset-description"
                   placeholder="소개글을 작성해보세요!"
-                  style="width: 900px; height: 250px; margin-top: 50px; padding: 10px; font-size: 15px;"></textarea>
+                  style="width: 900px; height: 400px; margin-top: 10px; padding: 10px; font-size: 15px;"></textarea>
+        <div style="display: flex; white-space: nowrap; margin-top: 40px; left: -270px; position: relative;">
+            <p style="align-content: center; font-weight: bold;">최대 참여 인원 설정</p> &nbsp;&nbsp;
+            <input type="number" class="input validator" min="1" max="10" id="grpMaxUser" placeholder="between 1 to 10"
+                   style="width: 200px;">
+        </div>
+        <p style="align-content: center; font-weight: bold; white-space: nowrap; position: relative; left: -400px; margin-top: 50px;">
+            그룹 구성원</p>
+        <div style="display: flex; white-space: nowrap; margin-top: 10px; position: relative;">
+            <div id="grpmem-container" class="card bg-base-300 rounded-box grid h-32 grow place-items-center"
+                 style="width: 900px; display: flex; display: flex; flex-direction: row;">
+            </div>
+        </div>
+        <div style="margin-top: 30px; margin-right: auto; margin-left: 340px; white-space: nowrap;">
+            <!--            <button class="btn btn-error" id="delete-users-btn">선택된 사용자 삭제</button>-->
+        </div>
         <div style="margin-top: 30px; margin-left: auto; margin-right: 20%; white-space: nowrap;">
             <button class="btn" id="groupset-save">변경사항 저장</button>
             <button class="btn" onclick="history.back();">이전으로</button>
@@ -52,58 +80,76 @@
 </html>
 <script>
     $(document).ready(function () {
-        let groupId = $("#sessionGroupId").val();
-        let userId = $("#sessionUserId").val();
         let storageUrl = "https://kr.object.ncloudstorage.com/filepark-bucket/profile/";
-        if (groupId) {
+        if ("[[${groupId}]]") {
             getGroup();
+            getGroupMembers();
         } else {
             alert("잘못된 접근입니다.");
             window.location.href = "/home";  // 잘못된 접근 시 메인 페이지로 이동
         }
-        function getUser() {
-            $.ajax({
-                type: "post",
-                url: "/api/readUser",
-                data: { id: userId },
-                dataType: "json",
-                success: function (res) {
 
-
-                },
-
-            });
-        }
         function getGroup() {
             $.ajax({
-                type:"get",
-                url:`/api/group/${groupId}/readGroup`,
-                dataType:"json",
-                success: function (res){
+                type: "get",
+                url: "/api/group/[[${groupId}]]/readGroup",
+                dataType: "json",
+                success: function (res) {
                     let hostId = res.userId;
-                    console.log(res)
-                    $(".profile-img").attr("src", res.host.profileImage.startsWith('http') ? res.host.profileImage : storageUrl + res.host.profileImage).attr("data", hostId);
+                    console.log(res);
+                    if(res.groupImage != null) {
+                        $(".profile-img").attr("src", res.groupImage.startsWith('http') ? res.groupImage : storageUrl + res.groupImage).attr("data", hostId);
+                    }
                     $("#groupset-name").val(res.name).attr("data", hostId);
                     $("#groupset-description").text(res.description).attr("data", hostId);
                     $("#groupset-createdAt").val("그룹 생성일 : " + res.createdAt).attr("data", hostId);
+                    $("#grpMaxUser").val(res.maxUser).attr("data", hostId);
 
-                    if (hostId !== $("#sessionUserId").val()) {
+                    if (hostId !== [[${userId}]]) {
                         $("#groupset-name").prop("readonly", true);
                         $("#groupset-description").prop("readonly", true);
-                        // 이미지 클릭 이벤트 비활성화
+                        $("#grpMaxUser").prop("readonly", true);
                         $(".profile-img").off("click");
                         // 버튼 비활성화
-                        $("#groupset-save").prop("disabled",true);
+                        $("#groupset-save").prop("disabled", true);
+
                     } else {
                         $("#groupset-name").prop("readonly", false);
                         $("#groupset-description").prop("readonly", false);
+                        $("#grpMaxUser").prop("readonly", false);
                     }
                 },
                 error: function () {
                     alert("그룹 정보를 불러오지 못했습니다.");
+                    location.href = "/home";
                 }
             });
         };
+
+        function getGroupMembers() {
+            $.ajax({
+                type: "get",
+                dataType: "json",
+                url: "/api/group/[[${hashedId}]]/user",
+                success: function (res) {
+                    if (res.status === "success") {
+                        let container = $("#grpmem-container");
+                        container.empty(); // 기존 내용 비우기
+
+                        res.users.forEach(user => {
+                            let imgElement = `<div class="tooltip" data-tip="${user.name}\n${user.email}">
+                                <img class="grp-mem" src="${user.profileImage}" data="${user.id}"/>
+                            </div>`;
+                            container.append(imgElement);
+                        });
+                    }
+                },
+                error: function () {
+                    console.error("그룹 사용자 목록을 불러오는 데 실패했습니다.");
+                }
+            })
+
+        }
     });
     $("#update-profile").change(function (e) {
         let file = e.target.files[0];
@@ -118,20 +164,21 @@
     $("#groupset-save").click(function () {
         if (confirm("변경 사항을 저장하시겠습니까?")) {
             let form = new FormData();
-            form.append("name", $("#groupset-name").val());
-            form.append("description", $("#groupset-description").val());
+            form.append("description",$("#groupset-description").val());
+            form.append("name",$("#groupset-name").val());
+            form.append("maxUser",$("#grpMaxUser").val());
             form.append("upload", $("#update-profile")[0].files[0]);
+            console.log("file:"+$("#update-profile")[0].files[0])
             $.ajax({
                 type: "post",
                 dataType: "text",
                 data: form,
                 processData: false,
                 contentType: false,
-                url: "./api/updateProfile",
+                url: "/api/group/[[${groupId}]]/update",
                 success: function (res) {
                     location.reload();
                     alert("변경 사항 저장완료")
-                    console.log(res);
                 },
                 error: function () {
                     alert("변경 사항 저장 실패")
@@ -139,5 +186,29 @@
             })
         }
     });
+    $("#delete-users-btn").click(function () {
+        if (confirm("선택한 사용자들을 삭제하시겠습니까?")) {
+            $.ajax({
+                type: "get",
+                url: "/api/group/[[${groupId}]]/deleteUser",
+                data: {
+                    userIds: selectedUserIds.join(",")  // 선택된 사용자들의 ID를 콤마로 구분하여 전달
+                },
+                success: function (res) {
+                    alert("사용자 삭제 완료!");
+                    location.reload();  // 페이지 리로드하여 삭제된 사용자 목록을 갱신
+                },
+                error: function () {
+                    alert("사용자 삭제 실패!");
+                }
+            });
+        }
+    });
+    $(document).on('click', '.grp-mem', function () {
+        location.href = "/profile?id=" + $(this).attr("data");
+    });
+    $(".profile-img").click(function () {
+        $("#update-profile").trigger("click");
+    })
 
 </script>

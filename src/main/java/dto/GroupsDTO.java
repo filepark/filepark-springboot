@@ -22,4 +22,5 @@ public class GroupsDTO {
 	private Timestamp createdAt;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private Timestamp updatedAt;
+	private String groupImage;
 }

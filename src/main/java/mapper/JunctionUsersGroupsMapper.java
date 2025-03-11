@@ -23,4 +23,6 @@ public interface JunctionUsersGroupsMapper {
 	public int readUserCountByGroupId(int groupId);
 
 	public List<Integer> readGroupsByUserId(int userId);
+
+	public void deleteUserFromGroup(int userId, int groupId);
 }

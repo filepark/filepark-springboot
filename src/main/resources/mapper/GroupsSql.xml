@@ -10,6 +10,7 @@
 		<result property="maxUser" column="max_user" />
 		<result property="createdAt" column="created_at" />
 		<result property="updatedAt" column="updated_at" />
+		<result property="groupImage" column="group_image" />
 	</resultMap>
 	<insert id="createGroup" parameterType="map">
 		INSERT INTO `groups` (user_id, hashed_id, name, description, max_user) VALUES (#{userId}, #{hashedId}, #{name}, #{description}, #{maxUser})
@@ -23,4 +24,7 @@
 	<select id="readGroupByHashedId" parameterType="String">
 		SELECT * FROM `groups` WHERE hashed_id = #{hashedId}
 	</select>
+	<update id="updateGroupById" parameterType="GroupsDTO">
+		update `groups` set name=#{name}, description=#{description}, max_user=#{maxUser}, group_image=#{groupImage} where id=#{id}
+	</update>
 </mapper>

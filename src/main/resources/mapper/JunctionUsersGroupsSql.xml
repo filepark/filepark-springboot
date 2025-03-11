@@ -28,12 +28,10 @@
 		<result property="maxUser" column="max_user" />
 		<result property="createdAt" column="created_at" />
 		<result property="updatedAt" column="updated_at" />
+		<result property="groupImage" column="group_image" />
 	</resultMap>
 	<insert id="createJunctionUsersGroups" parameterType="map">
 		INSERT INTO junction_users_groups (user_id, group_id) VALUES (#{userId}, #{groupId})
-		<selectKey keyProperty="id" resultType="int" order="AFTER">
-			SELECT LAST_INSERT_ID() AS id
-		</selectKey>
 	</insert>
 	<select id="readJunctionUsersGroupsByUserIdAndGroupId" parameterType="map" resultMap="junctionUsersGroupsResultMap">
 		SELECT * FROM junction_users_groups WHERE user_id = #{userId} AND
@@ -41,7 +39,7 @@
 	</select>
 	<select id="readGroupListByUserId" parameterType="int" resultMap="groupResultMap">
 		SELECT g.id, g.hashed_id, g.user_id, g.`name`, g.`description`, g.max_user,
-		g.created_at, g.updated_at FROM `groups` AS g
+		g.created_at, g.updated_at, g.group_image FROM `groups` AS g
 		LEFT JOIN junction_users_groups AS jug ON g.id = jug.group_id
 		WHERE jug.user_id = #{userId}
 	</select>
@@ -68,4 +66,7 @@
 	<select id="readGroupsByUserId" parameterType="int" resultType="int">
 		select group_id from junction_users_groups where user_id = #{userId}
 	</select>
+	<delete id="deleteUserFromGroup" parameterType="map">
+		delete from `groups` where user_id = #{userId} and group_id = #{groupId}
+	</delete>
 </mapper>

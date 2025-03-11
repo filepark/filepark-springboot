@@ -20,8 +20,10 @@ public class DirectoryService {
 	public DirectoryDTO readDirectoryById(int id) {
 		return directoryMapper.readDirectoryById(id);
 	}
-	
+
 	public DirectoryDTO readRootDirectoryByGroupId(int groupId) {
+		DirectoryDTO rootDirectory = directoryMapper.readRootDirectoryByGroupId(groupId);
+		System.out.println("rootDirectory: " + rootDirectory);
 		return directoryMapper.readRootDirectoryByGroupId(groupId);
 	}
 
@@ -32,8 +34,11 @@ public class DirectoryService {
 	public List<DirectoryDTO> readDirectoryListByGroupIdAndDirectoryId(int groupId, int directoryId) {
 		return directoryMapper.readDirectoryListByGroupIdAndDirectoryId(groupId, directoryId);
 	}
-	
+
 	public DirectoryDTO readDirectoryByDirectoryPath(int groupId, String path) {
+		if (path == null || path.equals("")) {
+			return readRootDirectoryByGroupId(groupId);
+		}
 		String[] pathParts = path.split("/");
 		DirectoryDTO directory = readRootDirectoryByGroupId(groupId);
 		if (directory == null) {
@@ -51,7 +56,7 @@ public class DirectoryService {
 	public void updateDirectoryById(DirectoryDTO directoryDTO) {
 		directoryMapper.updateDirectoryById(directoryDTO);
 	}
-	
+
 	public void deleteDirectoryById(int id) {
 		directoryMapper.deleteDirectoryById(id);
 	}

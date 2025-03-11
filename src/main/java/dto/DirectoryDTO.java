@@ -10,9 +10,9 @@ public class DirectoryDTO {
 	private int id;
 	private int userId;
 	private int groupId;
-	private int directoryId;
+	private Integer directoryId;
 	private String directoryName;
-	private boolean isRoot;
+	private int isRoot;
 	private String createdAt;
 	private String updatedAt;
 }
