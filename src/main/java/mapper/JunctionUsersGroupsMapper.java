@@ -11,6 +11,8 @@ import dto.UsersDTO;
 @Mapper
 public interface JunctionUsersGroupsMapper {
 	public void createJunctionUsersGroups(JunctionUsersGroupsDTO junctionDTO);
+	
+	public JunctionUsersGroupsDTO readJunctionUsersGroupsByUserIdAndGroupId(int userId, int groupId);
 
 	public List<GroupsDTO> readGroupListByUserId(int userId);
 
@@ -19,4 +21,6 @@ public interface JunctionUsersGroupsMapper {
 	public List<UsersDTO> readUserListByGroupId(int groupId);
 	
 	public int readUserCountByGroupId(int groupId);
+
+	public List<Integer> readGroupsByUserId(int userId);
 }

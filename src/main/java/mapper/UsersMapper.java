@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface UsersMapper {
 	public UsersDTO readUserById(int id);
     
-    public void signUp (String name, String profileImage,String email);
+    public void signUp (String name, String profileImage,String email, String provider);
 
     public int chkMemberKakao (String name, String profileImage);
 

@@ -5,33 +5,83 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+	<link rel="stylesheet" href="/styles/master.css" />
 	<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 	<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 	<title>File Park - Home</title>
+	<script>
+		$(() => {
+			$('#create-group-form').submit((e) => {
+				e.preventDefault();
+				const groupName = $('#group-name').val();
+				const description = $('#group-description').val();
+				const maxUser = $('#group-max-user').val();
+				const form = new FormData();
+				form.append('groupName', groupName);
+				form.append('description', description);
+				form.append('maxUser', maxUser);
+				$.ajax({
+					url: '/api/group',
+					type: 'POST',
+					data: form,
+					processData: false,
+					contentType: false,
+					success: (response) => {
+						$('#create-error-message').text('');
+						createGroupModal.close();
+						window.location.href = `/groups/${response.groupId}`;
+					},
+					error: (error) => {
+						$('#create-error-message').text('그룹 생성에 실패했습니다. 다시 시도해주세요.');
+					}
+				});
+			});
+		});
+	</script>
 </head>
-
+<style>
+</style>
 <body>
 	<header th:replace="~{/layouts/header :: header}"></header>
 	<aside th:replace="~{/layouts/aside :: aside}"></aside>
 	<main
-		style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 300px); height: calc(100vh - 80px);">
+		style="margin-top: 80px; margin-left: 300px; margin-right: 300px; padding: 20px; width: calc(100% - 300px); height: calc(100vh - 80px);">
 		<div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; gap: 10px;">
-			<button class="btn btn-soft btn-primary" onclick="createGroupModal.showModal()">새 그룹 만들기</button>
-			<button class="btn btn-soft btn-info" onclick="participantModal.showModal()">새 그룹에 참여</button>
+			<button class="btn btn-info" onclick="createGroupModal.showModal()">새 그룹 만들기</button>
+			<button class="btn  btn-success" onclick="participantModal.showModal()">새 그룹에 참여</button>
 		</div>
 	</main>
 	<dialog id="createGroupModal" class="modal">
 		<div class="modal-box">
-			<h3 class="text-lg font-bold">새 그룹 만들기</h3>
-			<hr style="margin: 10px 0;">
-			<p class="py-4">새 그룹 만들기</p>
-			<div class="modal-action">
-				<form method="dialog">
-					<button class="btn">닫기</button>
-				</form>
-			</div>
+            <h3 style="font-size: 1.4rem; font-weight: 600;">새 그룹 만들기</h3>
+            <div class="divider"></div>
+			<form id="create-group-form">
+				<div style="padding: 10px 0;">
+					<label for="group-name">그룹 이름</label>
+					<input id="group-name" type="text" class="input" placeholder="그룹 이름을 입력하세요." required autocomplete="off">
+				</div>
+				<div style="padding: 10px 0;">
+					<label for="group-description">그룹 설명</label>
+					<input id="group-description" type="text" class="input" placeholder="그룹 설명을 입력하세요." required autocomplete="off">
+				</div>
+				<div style="padding: 10px 0;">
+					<label for="group-max-user">그룹 최대 인원 수</label>
+					<input id="group-max-user" type="number" class="input validator" min="1" title="최소 인원 수는 1명입니다."
+						required>
+					<p class="validator-hint">최소 인원 수는 1명입니다.</p>
+				</div>
+				<p id="create-error-message" style="color: red;"></p>
+				<div class="modal-action">
+					<button type="submit" class="btn btn-success">그룹 생성</button>
+					<button type="button" class="btn" onclick="createGroupModal.close()">닫기</button>
+				</div>
+			</form>
 		</div>
 	</dialog>
 </body>
 
 </html>
+<script>
+
+</script>

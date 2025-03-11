@@ -16,10 +16,10 @@ public class FilesDTO {
 	private UsersDTO owner;
 	private int groupId;
 	private GroupsDTO group;
+	private int directoryId;
 	private String fileName;
 	private String storedName;
-	private String bucketUri;
-	private String filePath;
+	private String fileUri;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private Timestamp createdAt;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")

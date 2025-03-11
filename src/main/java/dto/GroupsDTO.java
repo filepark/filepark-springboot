@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 public class GroupsDTO {
 	private int id;
+	private String hashedId;
 	private int userId;
 	private UsersDTO host;
 	private String name;

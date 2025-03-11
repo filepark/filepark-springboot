@@ -13,8 +13,8 @@ public class UsersService {
     @Autowired
     UsersMapper usersMapper;
 
-    public void signUp(String name, String profileImage, String email) {
-        usersMapper.signUp(name, profileImage, email);
+    public void signUp(String name, String profileImage, String email, String provider) {
+        usersMapper.signUp(name, profileImage, email, provider);
     }
 
     public int chkMemberKakao(String name, String profileImage) {

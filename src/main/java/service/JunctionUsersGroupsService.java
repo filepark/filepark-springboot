@@ -16,9 +16,12 @@ import mapper.UsersMapper;
 public class JunctionUsersGroupsService {
 	JunctionUsersGroupsMapper junctionUsersGroupsMapper;
 	UsersMapper usersMapper;
-	
 	public void createJunctionUsersGroups(JunctionUsersGroupsDTO junctionDTO) {
 		junctionUsersGroupsMapper.createJunctionUsersGroups(junctionDTO);
+	}
+
+	public JunctionUsersGroupsDTO readJunctionUsersGroupsByUserIdAndGroupId(int userId, int groupId) {
+		return junctionUsersGroupsMapper.readJunctionUsersGroupsByUserIdAndGroupId(userId, groupId);
 	}
 
 	public List<GroupsDTO> readGroupListByUserId(int userId) {
@@ -33,12 +36,16 @@ public class JunctionUsersGroupsService {
 	public int readGroupCountByUserId(int userId) {
 		return junctionUsersGroupsMapper.readGroupCountByUserId(userId);
 	}
-	
+
 	public List<UsersDTO> readUserListByGroupId(int groupId) {
 		return junctionUsersGroupsMapper.readUserListByGroupId(groupId);
 	}
-	
+
 	public int readUserCountByGroupId(int groupId) {
 		return junctionUsersGroupsMapper.readUserCountByGroupId(groupId);
+	}
+
+	public List<Integer> readGroupsByUserId(int userId) {
+		return junctionUsersGroupsMapper.readGroupsByUserId(userId);
 	}
 }

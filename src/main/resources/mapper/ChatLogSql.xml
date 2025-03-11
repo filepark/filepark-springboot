@@ -1,4 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper.ChatLogMapper">
+    <resultMap id="ChatLogMap" type="ChatLogDTO">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="groupId" column="group_id"/>
+        <result property="message" column="message"/>
+        <result property="created_at" column="created_at"/>
+        <result property="userName" column="name"/>
+        <result property="profileImage" column="profile_image"/>
+    </resultMap>
+
+    <insert id="createChatLog" parameterType="ChatLogDTO">
+        insert into chat_log (user_id, group_id, message)
+        values (#{userId}, #{groupId}, #{message})
+    </insert>
+    <select id="readChatLogByGroupId" parameterType="int" resultMap="ChatLogMap">
+        SELECT c.id,
+               c.user_id,
+               u.name,
+               u.profile_image,
+               c.group_id,
+               c.message,
+               c.created_at
+        FROM chat_log c
+                 LEFT JOIN users u ON c.user_id = u.id
+        WHERE c.group_id = #{groupId}
+          AND (DATE ( c.created_at) = CURRENT_DATE OR DATE (c.created_at) = DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY))
+        ORDER BY c.created_at ASC;
+    </select>
 </mapper>

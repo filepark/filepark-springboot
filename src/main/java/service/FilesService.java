@@ -22,6 +22,17 @@ public class FilesService {
 	public void createFile(FilesDTO fileDTO) {
 		filesMapper.createFile(fileDTO);
 	}
+	
+	public FilesDTO readFileById(int id) {
+		FilesDTO file = filesMapper.readFileById(id);
+		if (file != null) {
+			UsersDTO owner = usersMapper.readUserById(file.getUserId());
+			GroupsDTO group = groupsMapper.readGroupById(file.getGroupId());
+			file.setOwner(owner);
+			file.setGroup(group);
+		}
+		return file;
+	}
 
 	public List<FilesDTO> readFileListByGroupId(int groupId) {
 		List<FilesDTO> list = filesMapper.readFileListByGroupId(groupId);
@@ -52,13 +63,34 @@ public class FilesService {
 	public int readFileCountByUserId(int userId) {
 		return filesMapper.readFileCountByUserId(userId);
 	}
-
-	public FilesDTO readFileById(int id) {
-		FilesDTO file = filesMapper.readFileById(id);
-		UsersDTO owner = usersMapper.readUserById(file.getUserId());
-		GroupsDTO group = groupsMapper.readGroupById(file.getGroupId());
-		file.setOwner(owner);
-		file.setGroup(group);
+	
+	public List<FilesDTO> readFileListByGroupIdAndDirectoryId(int groupId, int directoryId) {
+		List<FilesDTO> list = filesMapper.readFileListByGroupIdAndDirectoryId(groupId, directoryId);
+		list.forEach(file -> {
+			UsersDTO owner = usersMapper.readUserById(file.getUserId());
+			GroupsDTO group = groupsMapper.readGroupById(file.getGroupId());
+			file.setOwner(owner);
+			file.setGroup(group);
+		});
+		return list;
+	}
+	
+	public FilesDTO readFileByGroupIdAndFileName(int groupId, String fileName) {
+		FilesDTO file = filesMapper.readFileByGroupIdAndFileName(groupId, fileName);
+		if (file != null) {
+			UsersDTO owner = usersMapper.readUserById(file.getUserId());
+			GroupsDTO group = groupsMapper.readGroupById(file.getGroupId());
+			file.setOwner(owner);
+			file.setGroup(group);
+		}
 		return file;
+	}
+	
+	public void updateFile(FilesDTO fileDTO) {
+		filesMapper.updateFile(fileDTO);
+	}
+	
+	public void deleteFileById(int id) {
+		filesMapper.deleteFileById(id);
 	}
 }
