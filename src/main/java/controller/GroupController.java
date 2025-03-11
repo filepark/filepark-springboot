@@ -110,4 +110,11 @@ public class GroupController {
 		response.put("message", "그룹 사용자 목록 조회 성공");
 		return new ResponseEntity<Object>(response, HttpStatus.OK);
 	}
+
+	@GetMapping("/{groupId}/readGroup")
+	public GroupsDTO readGroupById(@PathVariable int groupId) {
+		GroupsDTO groupsDTO = groupService.readGroupById(groupId);
+		groupsDTO.setHost(usersService.getUserById(groupsDTO.getUserId()));
+		return groupsDTO;
+	}
 }

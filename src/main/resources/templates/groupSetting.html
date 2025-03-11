@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Profile Update</title>
+    <title>Group Setting</title>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
@@ -29,20 +29,21 @@
     <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; flex-direction: column; ">
         <div style="display: flex; position:relative; left: -150px;">
             <input type="hidden" id="sessionUserId" th:value="${session.userId}">
+            <input type="hidden" th:value="${groupId}" id="sessionGroupId">
             <input type="file" id="update-profile" style="display: none;">
             <img src="" onerror="this.src='/images/noimage.png'" class="profile-img">
             <div style="display: flex; flex-direction: column; justify-content: center; margin-left: 50px;">
-                <input type="text" placeholder="이름 입력" , class="input" id="mypage-name"
+                <input type="text" placeholder="이름 입력" , class="input" id="groupset-name"
                        style="border-radius: 5px; padding: 10px; height: 50px; width: 300px; margin-bottom: 10px;">
-                <input type="text" class="input" readonly id="mypage-createdAt"
+                <input type="text" class="input" readonly id="groupset-createdAt"
                        style="background-color: lightgrey; padding: 10px; border-radius: 5px; height: 50px; width: 300px; font-weight: bold;">
             </div>
         </div>
-        <textarea th:type="text" class="textarea" th:text="${session.description}" id="mypage-description"
+        <textarea th:type="text" class="textarea" th:text="${session.description}" id="groupset-description"
                   placeholder="소개글을 작성해보세요!"
                   style="width: 900px; height: 250px; margin-top: 50px; padding: 10px; font-size: 15px;"></textarea>
         <div style="margin-top: 30px; margin-left: auto; margin-right: 20%; white-space: nowrap;">
-            <button class="btn" id="mypage-save">변경사항 저장</button>
+            <button class="btn" id="groupset-save">변경사항 저장</button>
             <button class="btn" onclick="history.back();">이전으로</button>
         </div>
     </div>
@@ -51,40 +52,58 @@
 </html>
 <script>
     $(document).ready(function () {
-        let userId = new URLSearchParams(window.location.search).get("id");  // URL에서 userId 가져오기
+        let groupId = $("#sessionGroupId").val();
+        let userId = $("#sessionUserId").val();
         let storageUrl = "https://kr.object.ncloudstorage.com/filepark-bucket/profile/";
-        if (userId) {
+        if (groupId) {
+            getGroup();
+        } else {
+            alert("잘못된 접근입니다.");
+            window.location.href = "/home";  // 잘못된 접근 시 메인 페이지로 이동
+        }
+        function getUser() {
             $.ajax({
                 type: "post",
                 url: "/api/readUser",
                 data: { id: userId },
                 dataType: "json",
                 success: function (res) {
-                    $("#mypage-name").val(res.name).attr("data", userId);
-                    $("#mypage-description").text(res.description).attr("data", userId);
-                    $("#mypage-createdAt").val("가입일 : " + res.createdAt).attr("data", userId);
-                    $(".profile-img").attr("src", res.profileImage.startsWith('http') ? res.profileImage : storageUrl + res.profileImage).attr("data", userId);
 
-                    if (userId !== $("#sessionUserId").val()) {
-                        $("#mypage-name").prop("readonly", true);
-                        $("#mypage-description").prop("readonly", true);
+
+                },
+
+            });
+        }
+        function getGroup() {
+            $.ajax({
+                type:"get",
+                url:`/api/group/${groupId}/readGroup`,
+                dataType:"json",
+                success: function (res){
+                    let hostId = res.userId;
+                    console.log(res)
+                    $(".profile-img").attr("src", res.host.profileImage.startsWith('http') ? res.host.profileImage : storageUrl + res.host.profileImage).attr("data", hostId);
+                    $("#groupset-name").val(res.name).attr("data", hostId);
+                    $("#groupset-description").text(res.description).attr("data", hostId);
+                    $("#groupset-createdAt").val("그룹 생성일 : " + res.createdAt).attr("data", hostId);
+
+                    if (hostId !== $("#sessionUserId").val()) {
+                        $("#groupset-name").prop("readonly", true);
+                        $("#groupset-description").prop("readonly", true);
                         // 이미지 클릭 이벤트 비활성화
                         $(".profile-img").off("click");
                         // 버튼 비활성화
-                        $("#mypage-save").prop("disabled",true);
+                        $("#groupset-save").prop("disabled",true);
                     } else {
-                        $("#mypage-name").prop("readonly", false);
-                        $("#mypage-description").prop("readonly", false);
+                        $("#groupset-name").prop("readonly", false);
+                        $("#groupset-description").prop("readonly", false);
                     }
                 },
                 error: function () {
-                    alert("유저 정보를 불러오지 못했습니다.");
+                    alert("그룹 정보를 불러오지 못했습니다.");
                 }
             });
-        } else {
-            alert("잘못된 접근입니다.");
-            window.location.href = "/home";  // 잘못된 접근 시 메인 페이지로 이동
-        }
+        };
     });
     $("#update-profile").change(function (e) {
         let file = e.target.files[0];
@@ -96,11 +115,11 @@
             reader.readAsDataURL(file);
         }
     });
-    $("#mypage-save").click(function () {
+    $("#groupset-save").click(function () {
         if (confirm("변경 사항을 저장하시겠습니까?")) {
             let form = new FormData();
-            form.append("name", $("#mypage-name").val());
-            form.append("description", $("#mypage-description").val());
+            form.append("name", $("#groupset-name").val());
+            form.append("description", $("#groupset-description").val());
             form.append("upload", $("#update-profile")[0].files[0]);
             $.ajax({
                 type: "post",
@@ -120,4 +139,5 @@
             })
         }
     });
+
 </script>

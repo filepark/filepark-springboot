@@ -17,4 +17,7 @@
 		resultMap="groupResultMap">
 		SELECT * FROM `groups` WHERE id = #{id}
 	</select>
+<!--	<select id="readGroupAndHostById">-->
+<!--		select g.id, g.hashed_id, g.user_id, g.name, g.description, g.max_user, g.created_at, g.updated_at, u.profileImage-->
+<!--	</select>-->
 </mapper>

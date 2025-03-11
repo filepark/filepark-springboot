@@ -80,7 +80,7 @@ public class PageController {
     @GetMapping("/groups/{groupId}/setting")
     public String method(@PathVariable int groupId, Model model) {
     	model.addAttribute("groupId", groupId);
-        return "groups/setting";
+        return "groupSetting";
     }
 
     @GetMapping("/login/oauth2/code/kakao")
