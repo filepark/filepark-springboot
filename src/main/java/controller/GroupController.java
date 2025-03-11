@@ -150,7 +150,7 @@ public class GroupController {
 
 	@GetMapping("/{groupId}/readGroup")
 	public GroupsDTO readGroupById(@PathVariable int groupId) {
-		GroupsDTO groupsDTO = groupService.readGroupById(groupId);
+		GroupsDTO groupsDTO = groupsService.readGroupById(groupId);
 		groupsDTO.setHost(usersService.getUserById(groupsDTO.getUserId()));
 		return groupsDTO;
 	}
