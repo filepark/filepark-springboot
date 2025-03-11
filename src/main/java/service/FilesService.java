@@ -75,8 +75,8 @@ public class FilesService {
 		return list;
 	}
 	
-	public FilesDTO readFileByGroupIdAndFileName(int groupId, String fileName) {
-		FilesDTO file = filesMapper.readFileByGroupIdAndFileName(groupId, fileName);
+	public FilesDTO readFileByGroupIdAndDirectoryIdAndFileName(int groupId, int directoryId, String fileName) {
+		FilesDTO file = filesMapper.readFileByGroupIdAndDirectoryIdAndFileName(groupId, directoryId, fileName);
 		if (file != null) {
 			UsersDTO owner = usersMapper.readUserById(file.getUserId());
 			GroupsDTO group = groupsMapper.readGroupById(file.getGroupId());

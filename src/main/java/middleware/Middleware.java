@@ -48,29 +48,32 @@ public class Middleware extends OncePerRequestFilter {
 				return;
 			}
 		}
-		
+
 		if (requestPath.startsWith("/group")) {
 			int userId = userIdObject == null ? 0 : (int) userIdObject;
 			if (requestPath.length() < 72) { // 8 + 64 = 72
 				response.sendRedirect("/error/404");
 				return;
 			}
-			
+
 			int prefixNumber = 8; // "/groups/"
 			String hashedId = requestPath.substring(prefixNumber, 72);
 			GroupsDTO group = groupsService.readGroupByHashedId(hashedId);
+//			System.out.println("hashedId: " + hashedId);
+//			System.out.println("group: " + group);
 			if (group == null) {
 				response.sendRedirect("/error/404");
 				return;
 			}
-			
+
 			JunctionUsersGroupsDTO junction = junctionUsersGroupsService.readJunctionUsersGroupsByUserIdAndGroupId(userId, group.getId());
+//			System.out.println("junction" + junction);
 			if (junction == null) {
 				response.sendRedirect("/error/404");
 				return;
 			}
 		}
-
+//		System.out.println("다 통과");
 		filterChain.doFilter(request, response);
 	}
 

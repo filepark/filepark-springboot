@@ -106,6 +106,7 @@ public class PageController {
 		String currentPath = request.getRequestURI().substring(prefix.length());
 		String urlPath = URLDecoder.decode(currentPath, StandardCharsets.UTF_8);
 		DirectoryDTO directory = directoryService.readDirectoryByDirectoryPath(group.getId(), urlPath);
+		System.out.println("page directory" + directory);
 		if (directory == null) {
 			return "error/404";
 		}

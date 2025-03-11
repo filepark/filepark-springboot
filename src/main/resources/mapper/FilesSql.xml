@@ -39,10 +39,9 @@
 		SELECT * FROM files WHERE group_id = #{groupId} AND
 		directory_id = #{directoryId}
 	</select>
-	<select id="readFileByGroupIdAndFileName" parameterType="map" resultMap="fileResultMap">
+	<select id="readFileByGroupIdAndDirectoryIdAndFileName" parameterType="map" resultMap="fileResultMap">
 		SELECT * FROM files WHERE group_id = #{groupId} AND
-		file_name =
-		#{fileName}
+		directory_id = #{directoryId} AND file_name = #{fileName}
 	</select>
 	<update id="updateFile" parameterType="map">
 		UPDATE files SET group_id = #{groupId}, directory_id = #{directoryId}, file_name = #{fileName},

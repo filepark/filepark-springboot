@@ -22,7 +22,7 @@ public interface FilesMapper {
 	
 	public List<FilesDTO> readFileListByGroupIdAndDirectoryId(int groupId, int directoryId);
 	
-	public FilesDTO readFileByGroupIdAndFileName(int groupId, String fileName);
+	public FilesDTO readFileByGroupIdAndDirectoryIdAndFileName(int groupId, int directoryId, String fileName);
 	
 	public void updateFile(FilesDTO fileDTO);
 	

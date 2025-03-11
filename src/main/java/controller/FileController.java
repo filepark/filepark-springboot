@@ -121,7 +121,7 @@ public class FileController {
 			return new ResponseEntity<Object>(response, HttpStatus.BAD_REQUEST);
 		}
 
-		FilesDTO fileDto = filesService.readFileByGroupIdAndFileName(group.getId(), fileName);
+		FilesDTO fileDto = filesService.readFileByGroupIdAndDirectoryIdAndFileName(group.getId(), directory.getId(), fileName);
 		if (fileDto != null) {
 			response.put("status", "fail");
 			response.put("message", "파일 업로드 실패: 파일명 중복");

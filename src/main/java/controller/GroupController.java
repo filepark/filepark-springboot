@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -114,6 +115,7 @@ public class GroupController {
 		}
 	}
 	
+	@Transactional
 	@PostMapping
 	public ResponseEntity<Object> post(@RequestParam String groupName, @RequestParam String description,
 			@RequestParam int maxUser, HttpSession session) {
@@ -132,17 +134,23 @@ public class GroupController {
 			junction.setUserId(userId);
 			junctionUsersGroupsService.createJunctionUsersGroups(junction);
 			
+			System.out.println("---");
 			DirectoryDTO directory = new DirectoryDTO();
 			directory.setUserId(userId);
 			directory.setGroupId(group.getId());
+			directory.setDirectoryName("");
+			directory.setIsRoot(1);
 			directoryService.createDirectory(directory);
+			System.out.println(directory);
+			directory.setDirectoryId(directory.getId());
 			directoryService.updateDirectoryById(directory);
 			
 			response.put("status", "success");
-			response.put("groupId", group.getId());
+			response.put("groupId", group.getHashedId());
 			response.put("message", "그룹 생성 성공");
 			return new ResponseEntity<Object>(response, HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			response.put("status", "fail");
 			response.put("message", "그룹 생성 실패");
 			return new ResponseEntity<Object>(response, HttpStatus.INTERNAL_SERVER_ERROR);

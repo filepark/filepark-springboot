@@ -12,7 +12,7 @@
 		<result property="updatedAt" column="updated_at" />
 	</resultMap>
 	<insert id="createDirectory" parameterType="map">
-		INSERT INTO directory (user_id, group_id, directory_id, directory_name) VALUES (#{userId}, #{groupId}, #{directoryId}, #{directoryName})
+		INSERT INTO directory (user_id, group_id, directory_id, directory_name, is_root) VALUES (#{userId}, #{groupId}, #{directoryId}, #{directoryName}, #{isRoot})
 		<selectKey keyProperty="id" resultType="int" order="AFTER">
 			SELECT LAST_INSERT_ID() AS id
 		</selectKey>
@@ -33,7 +33,8 @@
 		directory_id = #{directoryId}
 	</select>
 	<update id="updateDirectoryById" parameterType="map">
-		UPDATE directory SETdirectory_name = #{directoryName}, updated_at = NOW() WHERE id = #{id}
+		UPDATE directory SET directory_name = #{directoryName}, directory_id = ${directoryId},
+		updated_at = NOW() WHERE id = #{id}
 	</update>
 	<delete id="deleteDirectoryById" parameterType="int">
 		DELETE FROM directory WHERE id = #{id}
