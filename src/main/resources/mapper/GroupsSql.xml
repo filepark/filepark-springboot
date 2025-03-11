@@ -3,8 +3,8 @@
 <mapper namespace="mapper.GroupsMapper">
 	<resultMap id="groupResultMap" type="GroupsDTO">
 		<id property="id" column="id" />
-		<result property="userId" column="user_id" />
 		<result property="hashedId" column="hashed_id" />
+		<result property="userId" column="user_id" />
 		<result property="name" column="name" />
 		<result property="description" column="description" />
 		<result property="maxUser" column="max_user" />

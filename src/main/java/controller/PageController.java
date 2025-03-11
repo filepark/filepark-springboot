@@ -68,7 +68,7 @@ public class PageController {
 			UsersDTO dto = usersService.getUserById(userId);
 			session.setAttribute("name", dto.getName());
 			session.setAttribute("profileImage", dto.getProfileImage());
-			session.setAttribute("logout_uri", "http://localhost:8888/logout/oauth2/naver" + "?accessToken=" + session.getAttribute("accessToken"));
+			session.setAttribute("logout_uri", "/logout/oauth2/naver" + "?accessToken=" + session.getAttribute("accessToken"));
 		} else if (provider == "KAKAO") {
 			session.setAttribute("logout_uri", logoutLocation + "?client_id=" + kakaoClientId + "&logout_redirect_uri=" + logoutUri);
 		}
