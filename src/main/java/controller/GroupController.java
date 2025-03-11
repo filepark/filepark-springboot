@@ -1,8 +1,10 @@
 package controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -153,5 +155,41 @@ public class GroupController {
 		GroupsDTO groupsDTO = groupsService.readGroupById(groupId);
 		groupsDTO.setHost(usersService.getUserById(groupsDTO.getUserId()));
 		return groupsDTO;
+	}
+
+	@GetMapping("/{groupId}/update")
+	public ResponseEntity<Object> updateGroup(@PathVariable int groupId,
+											  @RequestParam String description,
+											  @RequestParam String name,
+											  @RequestParam int maxUser) {
+		Map<String, Object> response = new HashMap<String, Object>();
+		try {
+			GroupsDTO groupsDTO = new GroupsDTO();
+			groupsDTO.setId(groupId);
+			groupsDTO.setDescription(description);
+			groupsDTO.setName(name);
+			groupsDTO.setMaxUser(maxUser);
+			groupsService.updateGroupById(groupsDTO);
+			response.put("status", "success");
+			response.put("groupId", groupsDTO.getId());
+			response.put("message", "그룹 변경 성공");
+			return new ResponseEntity<Object>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			response.put("status", "fail");
+			response.put("message", "그룹 변경 실패");
+			return new ResponseEntity<Object>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("{groupId}/deleteUser")
+	public ResponseEntity<Object> deleteUser(@PathVariable int groupId, @RequestParam String userIds) {
+		Map<String, Object> response = new HashMap<String, Object>();
+		List<Integer> userIdList = Arrays.stream(userIds.split(","))
+				.map(Integer::parseInt)
+				.collect(Collectors.toList());
+		// 사용자 삭제 처리
+		junctionUsersGroupsService.deleteUsersFromGroup(groupId, userIdList);
+
+		return new ResponseEntity<Object>(response, HttpStatus.OK);
 	}
 }

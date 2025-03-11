@@ -49,4 +49,11 @@ public class JunctionUsersGroupsService {
 	public List<Integer> readGroupsByUserId(int userId) {
 		return junctionUsersGroupsMapper.readGroupsByUserId(userId);
 	}
+
+	public void deleteUsersFromGroup(int groupId, List<Integer> userIds) {
+		for (int userId : userIds) {
+			junctionUsersGroupsMapper.deleteUserFromGroup(groupId, userId);
+		}
+	}
+
 }

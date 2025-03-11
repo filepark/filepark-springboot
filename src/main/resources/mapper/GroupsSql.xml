@@ -23,4 +23,7 @@
 	<select id="readGroupByHashedId" parameterType="String">
 		SELECT * FROM `groups` WHERE hashed_id = #{hashedId}
 	</select>
+	<update id="updateGroupById" parameterType="GroupsDTO">
+		update `groups` set name=#{name}, description=#{description}, max_user=#{maxUser} where id=#{id}
+	</update>
 </mapper>

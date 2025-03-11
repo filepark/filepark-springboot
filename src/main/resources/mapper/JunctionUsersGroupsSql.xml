@@ -68,4 +68,7 @@
 	<select id="readGroupsByUserId" parameterType="int" resultType="int">
 		select group_id from junction_users_groups where user_id = #{userId}
 	</select>
+	<delete id="deleteUserFromGroup" parameterType="map">
+		delete from `groups` where user_id = #{userId} and group_id = #{groupId}
+	</delete>
 </mapper>

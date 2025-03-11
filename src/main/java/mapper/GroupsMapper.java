@@ -11,4 +11,6 @@ public interface GroupsMapper {
 	public GroupsDTO readGroupById(int id);
 	
 	public GroupsDTO readGroupByHashedId(String hashedId);
+
+	public void updateGroupById(GroupsDTO group);
 }

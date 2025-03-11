@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/styles/master.css">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <title>File Park - Group</title>
     <script>
         let uploadFile = null;
@@ -610,8 +611,24 @@
                     $("#contextmenu").fadeOut(200);
                 }
             });
+            $("#i-set").click(function () {
+                location.href = "/setting/[[${hashedId}]]";
+
+            })
         });
     </script>
+    <style>
+        #i-set{
+            align-content: center;
+            font-size: 1.7em;
+            color: dimgray;
+            margin-left: 10px;
+        }
+        #i-set:hover {
+            cursor: pointer;
+            filter: brightness(80%);
+        }
+    </style>
 </head>
 
 <body>
@@ -620,11 +637,12 @@
     <aside th:replace="~{/layouts/chat :: chat}"></aside>
     <main
         style="margin-top: 80px; margin-left: 300px; padding: 20px; width: calc(100% - 600px); height: calc(100vh - 80px);">
-        <div style="display: flex; flex-direction: row-reverse;">
-            <div style="height: 60px; display: flex; align-items: center; gap: 20px;">
-                <span style="white-space: nowrap;">그룹 참여자</span>
-                <div id="participants-list" style="display: flex; gap: 5px;"></div>
-            </div>
+        <div style="display: flex;justify-content: space-between;">
+                <i class="bi bi-gear-fill" id="i-set"></i>
+                <div style="height: 60px; display: flex; align-items: center; gap: 20px;">
+                    <span style="white-space: nowrap;">그룹 참여자</span>
+                    <div id="participants-list" style="display: flex; gap: 5px;"></div>
+                </div>
         </div>
         <div style="display: flex; flex-direction: column; background-color: aquamarine;">
             <div

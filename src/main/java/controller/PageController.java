@@ -109,7 +109,7 @@ public class PageController {
 		if (directory == null) {
 			return "error/404";
 		}
-		
+
 		model.addAttribute("hashedId", hashedId);
 		model.addAttribute("optimizerPrefix", objectStorageService.getOptimizerEndPoint() + "/files/");
 		model.addAttribute("currentPath", currentPath);
@@ -117,9 +117,12 @@ public class PageController {
 		return "groups";
 	}
 
-    @GetMapping("/groups/{groupId}/setting")
-    public String method(@PathVariable int groupId, Model model) {
-    	model.addAttribute("groupId", groupId);
+    @GetMapping("/setting/{hashedId}")
+    public String method(@PathVariable String hashedId, Model model, HttpSession session) {
+		GroupsDTO groupsDTO = groupsService.readGroupByHashedId(hashedId);
+    	model.addAttribute("groupId", groupsDTO.getId());
+		model.addAttribute("hashedId", hashedId);
+		model.addAttribute("userId", session.getAttribute("userId"));
         return "groupSetting";
     }
 
