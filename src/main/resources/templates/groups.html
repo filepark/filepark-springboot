@@ -128,6 +128,7 @@
                 case 'm4a':
                 case 'wma':
                 case 'aac':
+                case 'mid':
                     return '/images/audio.png';
                 case 'mp4':
                 case 'avi':
@@ -173,11 +174,11 @@
                     }
                     $('#item-name').text(data.file.fileName);
                     $('#item-image').attr('src', imageSrc);
-                    checkedFileItem = { name: data.file.fileName, file: data.file.fileUri };
+                    checkedFileItem = { id: data.file.id, name: data.file.fileName, file: data.file.fileUri };
+                    fetchComments();
                     itemModal.showModal();
                 }
             });
-            itemModal.showModal();
         }
 
         function handleItemCheck(e) {
@@ -330,10 +331,36 @@
             });
         }
 
+        function fetchComments() {
+            const apiUrl = '/api/group' + '/[[${hashedId}]]' + '/file/' + checkedFileItem.id + '/comment';
+            $.ajax({
+                url: apiUrl,
+                method: 'GET',
+                success: function (data) {
+                    const commentList = $('#comment-list');
+                    commentList.empty();
+                    data.comments.forEach((comment) => {
+                        commentList.append(`
+                            <li style="display: flex; gap: 10px;">
+                                <div class="avatar" style="width: 40px;">
+                                    <img src="${comment.writer.profileImage}" alt="" style="width: 100%; height: 100%;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 5px;">
+                                    <span style="font-weight: 600;">${comment.writer.name}</span>
+                                    <span>${comment.comment}</span>
+                                </div>
+                            </li>
+                        `);
+                    });
+                }
+            });
+        }
+
         $(() => {
             fetchUsers();
             fetchFiles();
             setInterval(fetchUsers, 10000);
+            setInterval(fetchFiles, 10000);
             currentPathShow();
             $('#upload-form').val(false);
 
@@ -571,7 +598,6 @@
                 checkedFileItem.type = $(e.target).attr("data-file-type");
                 checkedFileItem.name = $(e.target).attr("data-file-name");
                 checkedFileItem.file = $(e.target).attr("data-file-src");
-                console.log(checkedFileItem);
                 if ($(e.target).hasClass("file-item")) {
                     let contextMenu = "";
                     contextMenu += `<li><a onclick="handleItemClick(${checkedFileItem.id})">열기</a></li>`;
@@ -755,14 +781,14 @@
         <div class="modal-box">
             <h3 id="item-name-detail" style="font-size: 1.2rem; font-weight: 600;"></h3>
             <div class="divider"></div>
-            <input type="text" class="input" style="width: 300px;" autocomplete="off">
+            <p></p>
             <div class="modal-action">
                 <button class="btn" onclick="detailModal.close()">닫기</button>
             </div>
         </div>
     </dialog>
     <dialog id="itemModal" class="modal">
-        <div class="modal-box" style="min-width: 50%;">
+        <div class="modal-box" style="min-width: 50%; max-height: 85%;">
             <form method="dialog">
                 <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
             </form>
@@ -770,15 +796,18 @@
             <figure style="display: flex; justify-content: center; align-items: center; margin: 20px 0;">
                 <img id="item-image" src="" alt="">
             </figure>
-            <div class="modal-action">
-                <button class="btn btn-primary" onclick="downloadFile()">다운로드</button>
-                <button class="btn" onclick="itemModal.close()">닫기</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-top: 1.5rem;">
+                <form id="create-comment-form">
+                    <input id="comment-input" type="text" class="input" style="width: 300px;" placeholder="댓글을 입력하세요." autocomplete="off">
+                    <button type="submit" class="btn btn-soft">전송</button>
+                </form>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="downloadFile()">다운로드</button>
+                    <button class="btn" onclick="itemModal.close()">닫기</button>
+                </div>
             </div>
             <div class="divider"></div>
-            <form id="create-comment-form">
-                <input type="text" class="input" style="width: 300px;" placeholder="댓글을 입력하세요." autocomplete="off">
-                <button type="submit" class="btn btn-soft">전송</button>
-            </form>
+            <div id="comment-list"></div>
         </div>
     </dialog>
     <ul id="contextmenu" class="menu bg-base-200 rounded-box w-56"

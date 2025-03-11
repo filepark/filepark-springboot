@@ -31,9 +31,6 @@
 	</resultMap>
 	<insert id="createJunctionUsersGroups" parameterType="map">
 		INSERT INTO junction_users_groups (user_id, group_id) VALUES (#{userId}, #{groupId})
-		<selectKey keyProperty="id" resultType="int" order="AFTER">
-			SELECT LAST_INSERT_ID() AS id
-		</selectKey>
 	</insert>
 	<select id="readJunctionUsersGroupsByUserIdAndGroupId" parameterType="map" resultMap="junctionUsersGroupsResultMap">
 		SELECT * FROM junction_users_groups WHERE user_id = #{userId} AND

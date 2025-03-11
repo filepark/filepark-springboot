@@ -2,8 +2,10 @@ package controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import service.DirectoryService;
 import service.FilesService;
 import service.GroupsService;
+import service.ObjectStorageService;
 
 @RestController
 @RequestMapping("/api/group/{hashedId}/directory")
@@ -32,6 +35,7 @@ public class DirectoryController {
 	final DirectoryService directoryService;
 	final FilesService filesService;
 	final GroupsService groupsService;
+	final ObjectStorageService objectStorageService;
 
 	@PostMapping
 	public ResponseEntity<Object> post(@PathVariable String hashedId, @RequestParam String directoryName, @RequestParam String path,
@@ -54,6 +58,7 @@ public class DirectoryController {
 
 		DirectoryDTO existingDirectory = directoryService.readDirectoryByGroupIdAndDirectoryIdAndDirectoryName(group.getId(), directory.getId(),
 				directoryName);
+		System.out.println("existingDirectory: " + existingDirectory);
 		if (existingDirectory != null) {
 			response.put("status", "fail");
 			response.put("message", "새 폴더 생성 실패: 이미 존재하는 폴더명입니다.");
@@ -66,6 +71,8 @@ public class DirectoryController {
 			newDirectory.setGroupId(group.getId());
 			newDirectory.setDirectoryId(directory.getId());
 			newDirectory.setDirectoryName(directoryName);
+			newDirectory.setIsRoot(0);
+			System.out.println("newDirectory: " + newDirectory);
 			directoryService.createDirectory(newDirectory);
 			response.put("status", "success");
 			response.put("message", "새 폴더 생성 성공");
@@ -79,7 +86,8 @@ public class DirectoryController {
 	}
 
 	@PutMapping("/{directoryId}")
-	public ResponseEntity<Object> put(@PathVariable String hashedId, @PathVariable int directoryId, @RequestParam String directoryName) {
+	public ResponseEntity<Object> put(@PathVariable String hashedId, @PathVariable int directoryId,
+			@RequestParam(name = "fileName") String directoryName) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		GroupsDTO group = groupsService.readGroupByHashedId(hashedId);
 		if (group == null) {
@@ -128,7 +136,6 @@ public class DirectoryController {
 			return new ResponseEntity<Object>(response, HttpStatus.NOT_FOUND);
 		}
 
-		List<String> deleteFileList = new ArrayList<>();
 		DirectoryDTO directory = directoryService.readDirectoryById(directoryId); // 삭제할 디렉토리 조회
 		if (directory == null) {
 			response.put("status", "fail");
@@ -136,29 +143,27 @@ public class DirectoryController {
 			return new ResponseEntity<Object>(response, HttpStatus.BAD_REQUEST);
 		}
 
-		// 1. 디렉토리 조회
-		// 2. 디렉토리에 존재하는 모든 파일을 리스트에 추가
-		// 3. 해당 디렉토리 내에 디렉토리가 존재하면 -> 1
-		// 3. 디렉토리가 존재하지 않으면 해당 디렉토리를 참조하는 파일 삭제, 해당 디렉토리 삭제, return
-		while (directory != null) {
-			List<DirectoryDTO> subDirectories = directoryService.readDirectoryListByGroupIdAndDirectoryId(group.getId(), directory.getId());
-			if (subDirectories.size() > 0) {
-				directory = subDirectories.get(0);
-			} else {
-				List<FilesDTO> files = filesService.readFileListByGroupIdAndDirectoryId(group.getId(), directory.getId());
-				for (FilesDTO file : files) {
-					deleteFileList.add(file.getStoredName());
-				}
-				break;
-			}
-		}
-		System.out.println("deleteFileList: ");
-		for (String filename : deleteFileList) {
-			System.out.println(filename + " ");
+		List<FilesDTO> deleteFileList = new ArrayList<>();
+		Queue<Integer> visitDirectory = new LinkedList<>();
+		List<DirectoryDTO> subDirectories = directoryService.readDirectoryListByGroupIdAndDirectoryId(group.getId(), directoryId);
+		deleteFileList.addAll(filesService.readFileListByGroupIdAndDirectoryId(group.getId(), directoryId));
+		for (DirectoryDTO subDirectory : subDirectories) {
+			visitDirectory.add(subDirectory.getId());
 		}
 
+		while (visitDirectory.size() > 0) {
+			int subDirectoryId = visitDirectory.poll();
+			subDirectories = directoryService.readDirectoryListByGroupIdAndDirectoryId(group.getId(), subDirectoryId);
+			deleteFileList.addAll(filesService.readFileListByGroupIdAndDirectoryId(group.getId(), subDirectoryId));
+			for (DirectoryDTO subDirectory : subDirectories) {
+				visitDirectory.add(subDirectory.getId());
+			}
+		}
 		try {
-//			directoryService.deleteDirectoryById(directoryId); // cascade delete
+			for (FilesDTO file : deleteFileList) {
+				objectStorageService.deleteFile(objectStorageService.getBucketName(), "files", file.getStoredName());
+			}
+			directoryService.deleteDirectoryById(directoryId); // cascade delete
 			response.put("status", "success");
 			response.put("message", "폴더 삭제 성공");
 			return new ResponseEntity<Object>(response, HttpStatus.OK);
