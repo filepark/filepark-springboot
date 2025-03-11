@@ -31,13 +31,14 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
 	private static final Map<Integer, Set<WebSocketSession>> GROUP_SESSIONS = new ConcurrentHashMap<>();
 	private static final Map<WebSocketSession, Integer> SESSION_GROUPS = new ConcurrentHashMap<>();
-	private static int sendUserId;
-	private static int sendGroupId;
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		System.out.println("ID: " + session.getAttributes().get("userId"));
+//		System.out.println("ID: " + session.getAttributes().get("userId"));
 		Integer userId = (Integer) session.getAttributes().get("userId");
+		if (userId == null) {
+			return;
+		}
 		List<Integer> userGroups = getUserGroups(userId);
 		for (int groupId : userGroups) {
 			SESSION_GROUPS.put(session, groupId); // ✅ 세션을 그룹 ID와 매핑
@@ -137,12 +138,15 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
 		// 해당 그룹의 WebSocket 세션 가져오기
 		Set<WebSocketSession> groupSessions = GROUP_SESSIONS.getOrDefault(sendGroupId, new HashSet<>());
+		if (!groupSessions.isEmpty()) {
+			chatLogService.createChatLog(chatLogDTO);
+		}
 
 		for (WebSocketSession groupSession : groupSessions) {
+			System.out.println("이거 2번 실행되는거에요?");
 			if (groupSession.isOpen()) {
 				try {
 					groupSession.sendMessage(new TextMessage(chatMessage));
-					chatLogService.createChatLog(chatLogDTO);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
