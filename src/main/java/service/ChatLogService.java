@@ -18,7 +18,7 @@ public class ChatLogService {
     public void createChatLog(ChatLogDTO chatLogDTO) {
         chatLogMapper.createChatLog(chatLogDTO);
     };
-    public List<ChatLogDTO> getChatLog(int groupId) {
+    public List<ChatLogDTO> readChatLogByGroupId(int groupId) {
         return chatLogMapper.readChatLogByGroupId(groupId);
     };
 }

@@ -22,9 +22,6 @@
                style="position: sticky; bottom: 10px; width: calc(100% - 40px); padding: 10px; border-radius: 20px; margin-top: 10px;">
     </div>
     <script>
-        let match = window.location.pathname.match(/\/groups\/(\d+)/);
-        let groupId = match ? match[1] : null;
-
         $(document).ready(function () {
             getChatLog();
         });
@@ -32,7 +29,7 @@
         function getChatLog() {
             $.ajax({
                 type: "get",
-                url: `/api/chatLog/${groupId}`,
+                url: '/api/chatLog/'+ '[[${hashedId}]]',
                 dataType: "json",
                 success: function (res) {
                     res.forEach(function (message) {
@@ -73,12 +70,12 @@
         }
 
         function connectWebSocket() {
-            const socket = new WebSocket('ws://localhost:8888/ws/conn');
+            const socket = new WebSocket('/ws/conn');
 
             // WebSocket 연결 성공
             socket.onopen = function () {
                 let userId = $("#sessionUserId").val();
-                let chatOpen = `new::${userId}::${groupId}`;
+                let chatOpen = `new::${userId}::` + '[[${hashedId}]]';
                 socket.send(chatOpen);
                 console.log('WebSocket 연결 성공');
             };
@@ -135,7 +132,7 @@
                 let chatMessage = {
                     message: message,
                     sender: $("#sessionUserId").val(),
-                    groupId: groupId
+                    groupId: '[[${hashedId}]]'
                 };
                 socket.send(JSON.stringify(chatMessage));
                 $("#chat-input").val("");

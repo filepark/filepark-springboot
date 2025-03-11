@@ -1,6 +1,7 @@
 package controller;
 
 import dto.ChatLogDTO;
+import dto.GroupsDTO;
 import dto.UsersDTO;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 import service.ChatLogService;
+import service.GroupsService;
 import service.ObjectStorageService;
 import service.UsersService;
 
@@ -28,6 +30,8 @@ public class ApiController {
 	UsersService usersService;
     @Autowired
     private ChatLogService chatLogService;
+    @Autowired
+    private GroupsService groupsService;
 
 	@GetMapping("")
 	public String test() {
@@ -63,8 +67,9 @@ public class ApiController {
 		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 
-	@GetMapping("/chatLog/{groupId}")
-	public List<ChatLogDTO> chatLog(@PathVariable int groupId) {
-		return chatLogService.getChatLog(groupId);
+	@GetMapping("/chatLog/{hashedId}")
+	public List<ChatLogDTO> chatLog(@PathVariable String hashedId) {
+		GroupsDTO group = groupsService.readGroupByHashedId(hashedId);
+		return chatLogService.readChatLogByGroupId(group.getId());
 	}
 }
